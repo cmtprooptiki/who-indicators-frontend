@@ -28,6 +28,10 @@ const IndicatorsList = () => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
   
     const [filteredIndicators, setFilteredIndicators] = useState([]);
+
+    const [q4all_Ind_number, setQ4AllIndNumber] = useState([]);
+    const [category_of_Indicator, set_Category_Of_Indicator] = useState([])
+    const [type_of_healthcare, setType_Of_HealthCare] = useState([])
     
 
 
@@ -87,6 +91,15 @@ const IndicatorsList = () => {
             const response = await axios.get(`${apiBaseUrl}/indicators`, {timeout: 5000});
             const indData = response.data;
             console.log("indicators:",indData);
+
+            const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
+            setQ4AllIndNumber(uniqueq4all_Ind_number);
+
+            const unique_catergory_of_Indicator = [...new Set(indData.map(item => item.catergory_of_Indicator || 'N/A'))]
+            set_Category_Of_Indicator(unique_catergory_of_Indicator)
+
+            const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || 'N/A'))]
+            setType_Of_HealthCare(unique_type_of_healthcare)
             // Extract unique statuses
             //const uniqueProjectManager = [...new Set(ergaData.map(item => item.project_manager))];
             // const uniqueTimologia = [...new Set(paraData.map(item => item.timologia?.invoice_number || 'N/A'))];
@@ -186,13 +199,13 @@ const IndicatorsList = () => {
             global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             id: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
             indicator_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            q4all_Ind_number: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            q4all_Ind_number: { value: null, matchMode: FilterMatchMode.IN },
             status: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
             indicator_cluster: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
             ind_Merge: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            catergory_of_Indicator: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            catergory_of_Indicator: { value: null, matchMode: FilterMatchMode.IN },
             dimension: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            type_of_healthcare: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            type_of_healthcare: { value: null, matchMode: FilterMatchMode.IN },
             type_of_healthcare_providers_D1_D7: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
             cross_Cutting_Dimensions_A_I: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
             cross_Cutting_Dimensions_Inputs_Process_Outputs: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
@@ -367,6 +380,8 @@ const IndicatorsList = () => {
         return Number(value).toLocaleString('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    
+
 
 
 
@@ -465,6 +480,112 @@ const IndicatorsList = () => {
             </div>
         );
     };
+    const category_of_Indicator_BodyTemplate = (rowData) => 
+{
+     const category_of_indicators = rowData.catergory_of_Indicator || 'N/A';        // console.log("repsBodytempl",timologio)
+        console.log("timologio",category_of_indicators," type ",typeof(category_of_indicators));
+        console.log("rep body template: ",category_of_indicators)
+    
+        return (
+            <div className="flex align-items-center gap-2">
+                {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
+                <span>{category_of_indicators}</span>
+            </div>
+        );
+}
+
+const category_of_Indicator_FilterTemplate = (options) =>
+{
+    console.log('Current timologia filter value:', options.value);
+    
+    return (<MultiSelect value={options.value} options={category_of_Indicator} itemTemplate={category_of_Indicator_ItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
+}
+
+const category_of_Indicator_ItemTemplate = (option) => {
+        // console.log("itemTemplate",option)
+        console.log("rep Item template: ",option)
+        console.log("rep Item type: ",typeof(option))
+    
+        return (
+            <div className="flex align-items-center gap-2">
+                {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
+                <span>{option}</span>
+            </div>
+        );
+    };
+
+const type_Of_HealthCare_BodyTemplate = (rowData) => 
+{
+     const type_of_HealthCare = rowData.type_of_healthcare || 'N/A';        // console.log("repsBodytempl",timologio)
+        console.log("timologio",type_of_HealthCare," type ",typeof(type_of_HealthCare));
+        console.log("rep body template: ",type_of_HealthCare)
+    
+        return (
+            <div className="flex align-items-center gap-2">
+                {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
+                <span>{type_of_HealthCare}</span>
+            </div>
+        );
+}
+
+const type_Of_HealthCare_FilterTemplate = (options) =>
+{
+    console.log('Current timologia filter value:', options.value);
+    
+    return (<MultiSelect value={options.value} options={type_of_healthcare} itemTemplate={type_Of_HealthCare_ItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
+}
+
+const type_Of_HealthCare_ItemTemplate = (option) => {
+        // console.log("itemTemplate",option)
+        console.log("rep Item template: ",option)
+        console.log("rep Item type: ",typeof(option))
+    
+        return (
+            <div className="flex align-items-center gap-2">
+                {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
+                <span>{option}</span>
+            </div>
+        );
+    };
+
+
+const q4all_Ind_number_BodyTemplate = (rowData) => {
+        
+        const q4all_Ind_numberder = rowData.q4all_Ind_number || 'N/A';        // console.log("repsBodytempl",timologio)
+        console.log("timologio",q4all_Ind_numberder," type ",typeof(q4all_Ind_numberder));
+        console.log("rep body template: ",q4all_Ind_numberder)
+    
+        return (
+            <div className="flex align-items-center gap-2">
+                {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
+                <span>{q4all_Ind_numberder}</span>
+            </div>
+        );
+    };
+
+
+
+const q4all_Ind_number_FilterTemplate = (options) =>
+{
+     console.log('Current timologia filter value:', options.value);
+    
+    return (<MultiSelect value={options.value} options={q4all_Ind_number} itemTemplate={q4all_Ind_numberItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
+    
+}
+
+const q4all_Ind_numberItemTemplate = (option) => {
+        // console.log("itemTemplate",option)
+        console.log("rep Item template: ",option)
+        console.log("rep Item type: ",typeof(option))
+    
+        return (
+            <div className="flex align-items-center gap-2">
+                {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
+                <span>{option}</span>
+            </div>
+        );
+    };
+
 
     const isPositiveInteger = (val) => {
         let str = String(val);
@@ -684,15 +805,15 @@ const IndicatorsList = () => {
                  */}
                 <Column field="indicator_name" header="Indicator Name" filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '12rem' }}    editor={(options) => cellEditor(options)}
                             onCellEditComplete={onCellEditComplete}></Column>
-                <Column field="q4all_Ind_number" header="Q4All Indicator Number" filter filterPlaceholder="Search by Q4All Indicator Number" style={{ minWidth: '12rem' }}></Column>
+                <Column field="q4all_Ind_number" header="Q4All Indicator Number" filter filterField='q4all_Ind_number' filterElement={q4all_Ind_number_FilterTemplate} showFilterMatchModes={false} body={q4all_Ind_number_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
                 <Column field="status" header="Status" filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}  body={statusBodyTemplate} 
                 editor={(options) => cellEditor(options)}
                             onCellEditComplete={onCellEditComplete}></Column>
                 <Column field="indicator_cluster" header="Indicator Cluster" filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }}></Column>
                 <Column field="ind_Merge" header="Indicator Merge" filter filterPlaceholder="Search by Indicator Merge" style={{ minWidth: '12rem' }}></Column>
-                <Column field="catergory_of_Indicator" header="Category of Indicator" filter filterPlaceholder="Search by Category of Indicator" style={{ minWidth: '12rem' }}></Column>
+                <Column field="catergory_of_Indicator" header="Category of Indicator" filter filterField='catergory_of_Indicator' filterElement={category_of_Indicator_FilterTemplate} showFilterMatchModes={false} body={category_of_Indicator_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
                 <Column field="dimension" header="Dimension" filter filterPlaceholder="Search by Dimension" style={{ minWidth: '12rem' }}></Column>
-                <Column field="type_of_healthcare" header="Type of Healthcare" filter filterPlaceholder="Search by Type of Healthcare" style={{ minWidth: '12rem' }} body={domainBodyTemplate} 
+                <Column field="type_of_healthcare" header="Type of Healthcare" filter filterField = 'type_of_healthcare' filterElement={type_Of_HealthCare_FilterTemplate} showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={domainBodyTemplate} 
                 editor={(options) => cellEditor(options)}
                             onCellEditComplete={onCellEditComplete}></Column>
                 <Column field="type_of_healthcare_providers_D1_D7" header="Type of Healthcare Providers" filter filterPlaceholder="Search by Healthcare Providers" style={{ minWidth: '12rem' }}></Column>
