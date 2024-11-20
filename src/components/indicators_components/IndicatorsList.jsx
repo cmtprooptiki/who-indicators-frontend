@@ -36,6 +36,28 @@ const IndicatorsList = () => {
     const [selectedType, setSelectedType] = useState(null);
     const [selectedIndicator, setSelectedIndicator] = useState([]);
 
+    const [statuses, setStatuses] = useState([
+        { label: 'Proposed', value: 'Proposed' },
+        { label: 'Draft', value: 'Draft' },
+        { label: 'Formally approved', value: 'Formally approved' },
+        { label: 'Piloting', value: 'Piloting' },
+        { label: 'Deployed', value: 'Deployed' },
+
+
+    ]); // Example list of options for dropdown
+
+
+    const [selectedDomain, setSelectedDomain] = useState(null);
+
+    const domains = [
+        { label: 'Secundary Healthcare',value:'Secundary Healthcare' },
+        { label: 'Home/telecare and Active life', value: 'Home/telecare and Active life' },
+        { label: 'Primary Care', value: 'Primary Care' },
+        { label: 'Public health indicators', value:'Public health indicators' },
+        { label: 'NCDs and Mental Health',value:'NCDs and Mental Health' },
+        { label: 'Palliative and Long term care', value: 'Palliative and Long term care' },
+        { label: 'All domains', value: 'All domains' },
+    ];
 
     const dt = useRef(null);
 
@@ -348,129 +370,6 @@ const IndicatorsList = () => {
 
 
 
-
-    const ammountBodyTemplate = (rowData) => {
-        return formatCurrency(rowData.ammount);
-    };
-
-    const ammount_vatBodyTemplate = (rowData) => {
-        return formatCurrency(rowData.ammount_vat);
-    };
-
-    const ammount_totalBodyTemplate = (rowData) => {
-        return formatCurrency(rowData.ammount_total);
-    };
-
-    const ammountFilterTemplate = (options) => {
-        return <InputNumber value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} mode="currency" currency="EUR" locale="en-US" />;
-    };
-
-
-  
-
- //delivery Date
- const deliveryDateBodyTemplate = (rowData) => {
-    return formatDate(rowData.delivery_date);
-};
-
-const deliveryDateFilterTemplate = (options) => {
-    console.log('Current filter value:', options);
-
-    return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
-};
-
-
-
-
-//Estimate Payment 
-const estimatePaymentDateBodyTemplate = (rowData) => {
-    return formatDate(rowData.estimate_payment_date);
-};
-
-const estimatePaymentDateFilterTemplate = (options) => {
-    console.log('Current filter value:', options);
-
-    return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
-};
-
- //Estimate Payment 2
- const estimatePaymentDateBodyTemplate2 = (rowData) => {
-    return formatDate(rowData.estimate_payment_date_2);
-};
-
-const estimatePaymentDateFilterTemplate2 = (options) => {
-    console.log('Current filter value:', options);
-
-    return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
-};
-
-//Estimate Payment 3
-const estimatePaymentDateBodyTemplate3= (rowData) => {
-    return formatDate(rowData.estimate_payment_date_3);
-};
-
-const estimatePaymentDateFilterTemplate3= (options) => {
-    console.log('Current filter value:', options);
-
-    return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
-}
-
-
-//erga
-
-const ergaBodyTemplate = (rowData) => {
-        
-    const ergo = rowData.erga?.name || 'N/A';        // console.log("repsBodytempl",timologio)
-    console.log("timologio",ergo," type ",typeof(ergo));
-    console.log("rep body template: ",ergo)
-
-    return (
-        <div className="flex align-items-center gap-2">
-            {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
-            <span>{ergo}</span>
-        </div>
-    );
-};
-
-// const ergaFilterTemplate = (options) => {
-//     console.log('Current timologia filter value:', options.value);
-
-//         return (<MultiSelect value={options.value} options={erga} itemTemplate={ergaItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
-
-//     };
-
-
-const ergaItemTemplate = (option) => {
-    // console.log("itemTemplate",option)
-    console.log("rep Item template: ",option)
-    console.log("rep Item type: ",typeof(option))
-
-    return (
-        <div className="flex align-items-center gap-2">
-            {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
-            <span>{option}</span>
-        </div>
-    );
-};
-
-//shortname
-
-const shortnameBodyTemplate = (rowData) => {
-        
-    const ergo = rowData.erga?.shortname || 'N/A';        // console.log("repsBodytempl",timologio)
-    console.log("timologio",ergo," type ",typeof(ergo));
-    console.log("rep body template: ",ergo)
-
-    return (
-        <div className="flex align-items-center gap-2">
-            {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
-            <span>{ergo}</span>
-        </div>
-    );
-};
-
-
-
     const header = renderHeader();
 
 
@@ -567,8 +466,144 @@ const shortnameBodyTemplate = (rowData) => {
         );
     };
 
+    const isPositiveInteger = (val) => {
+        let str = String(val);
+        str = str.trim();
+        if (!str) {
+            return false;
+        }
+        str = str.replace(/^0+/, '') || '0';
+        let n = Math.floor(Number(str));
+        return n !== Infinity && String(n) === str && n >= 0;
+    };
 
+    const priceEditor = (options) => {
+        return (
+            <InputNumber
+                value={options.value}
+                onValueChange={(e) => options.editorCallback(e.value)}
+                mode="currency"
+                currency="USD"
+                locale="en-US"
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+        );
+    };
+    const onCellEditComplete = async (e) => {
+        let { rowData, newValue, field, originalEvent: event } = e;
+
+        let validEdit = false;
+        switch (field) {
+            case 'quantity':
+            case 'price':
+                if (isPositiveInteger(newValue)) {
+                    rowData[field] = newValue;
+                    validEdit = true;
+                } else {
+                    event.preventDefault();
+                }
+                break;
+
+            case 'status': // For dropdown, directly assign the selected value
+            if (newValue) {
+                rowData[field] = newValue;
+                validEdit = true;
+            } else {
+                event.preventDefault();
+            }
+            break;
+
+            case 'type_of_healthcare': // For dropdown, directly assign the selected value
+            if (newValue) {
+                rowData[field] = newValue;
+                validEdit = true;
+            } else {
+                event.preventDefault();
+            }
+            break;
+
+            default:
+                if (newValue.trim().length > 0) {
+                    rowData[field] = newValue;
+                    validEdit = true;
+                } else {
+                    event.preventDefault();
+                }
+                break;
+        }
+
+        if (validEdit) {
+            try {
+                // Update the database via an API call
+                const response =await axios.patch(`${apiBaseUrl}/indicators/${rowData.id}`, {
+                    [field]: newValue
+                });
+
+                if (response.status === 200) {
+                    console.log('Update successful');
+                } else {
+                    console.error('Update failed');
+                }
+            } catch (error) {
+                console.error('Error updating the product:', error);
+                // Revert to the old value if the update fails
+                event.preventDefault();
+            }
+        }
+    };
+
+    const cellEditor = (options) => {
+        if (options.field === 'price') return priceEditor(options);
+        else if (options.field === 'status') return dropdownEditor(options); // Dropdown editor for category
+        else if (options.field === 'type_of_healthcare') return dropdownEditor2(options); // Dropdown editor for domain
+
+        else return textEditor(options);
+    };
     
+    const textEditor = (options) => {
+        return (
+            <InputText
+                type="text"
+                value={options.value}
+                onChange={(e) => options.editorCallback(e.target.value)}
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+        );
+    };
+
+    const dropdownEditor = (options) => {
+        return (
+            <Dropdown
+                value={options.value}
+                options={statuses} // Use the list of options
+                onChange={(e) => options.editorCallback(e.value)}
+                placeholder="Select a status"
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+        );
+    };
+    const statusBodyTemplate = (rowData) => {
+        const status = statuses.find((cat) => cat.value === rowData.status);
+        return status ? status.label : rowData.status; // Display label instead of value
+    };
+
+    const dropdownEditor2 = (options) => {
+        return (
+            <Dropdown
+                value={options.value}
+                options={domains} // Use the list of options
+                onChange={(e) => options.editorCallback(e.value)}
+                placeholder="Select a type of healthcare"
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+        );
+    };
+
+    const domainBodyTemplate = (rowData) => {
+        const domain = domains.find((cat) => cat.value === rowData.type_of_healthcare);
+        return domain ? domain.label : rowData.type_of_healthcare; // Display label instead of value
+    };
+
 
 
     return(
@@ -587,16 +622,16 @@ const shortnameBodyTemplate = (rowData) => {
                 severity="danger" 
                 onClick={() => deleteIndicatorsSelected(selectedIndicator.map(indicator => indicator.id))} // Pass an array of selected IDs
             />
-        )} *
+        )} 
 
         </div>
 
 
 
-<DataTable value={indicators} ref = {dt} onValueChange={(indicators) => setFilteredIndicators(indicators)} paginator stripedRows
+<DataTable value={indicators} editMode="cell" ref = {dt} onValueChange={(indicators) => setFilteredIndicators(indicators)} paginator stripedRows
  rows={20} scrollable scrollHeight="600px" loading={loading} dataKey="id" 
             filters={filters} 
-            globalFilterFields={['id', 'indicator_name', 'indicator_name',  'q4all_Ind_number',
+            globalFilterFields={['id', 'indicator_name',  'q4all_Ind_number',
                  'status', 'indicator_cluster',      'ind_Merge',   'catergory_of_Indicator',   'dimension',     
                    'type_of_healthcare',  'type_of_healthcare_providers_D1_D7',  'cross_Cutting_Dimensions_A_I', 
                     'cross_Cutting_Dimensions_Inputs_Process_Outputs',   'dimensions_of_Quality_QoCOfficeReport', 
@@ -647,14 +682,19 @@ const shortnameBodyTemplate = (rowData) => {
                 {/* <Column header="erga.name" filterField="erga.name" showFilterMatchModes={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem' }}
                    ></Column>
                  */}
-                <Column field="indicator_name" header="Indicator Name" filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '12rem' }}></Column>
+                <Column field="indicator_name" header="Indicator Name" filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '12rem' }}    editor={(options) => cellEditor(options)}
+                            onCellEditComplete={onCellEditComplete}></Column>
                 <Column field="q4all_Ind_number" header="Q4All Indicator Number" filter filterPlaceholder="Search by Q4All Indicator Number" style={{ minWidth: '12rem' }}></Column>
-                <Column field="status" header="Status" filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}></Column>
+                <Column field="status" header="Status" filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}  body={statusBodyTemplate} 
+                editor={(options) => cellEditor(options)}
+                            onCellEditComplete={onCellEditComplete}></Column>
                 <Column field="indicator_cluster" header="Indicator Cluster" filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }}></Column>
                 <Column field="ind_Merge" header="Indicator Merge" filter filterPlaceholder="Search by Indicator Merge" style={{ minWidth: '12rem' }}></Column>
                 <Column field="catergory_of_Indicator" header="Category of Indicator" filter filterPlaceholder="Search by Category of Indicator" style={{ minWidth: '12rem' }}></Column>
                 <Column field="dimension" header="Dimension" filter filterPlaceholder="Search by Dimension" style={{ minWidth: '12rem' }}></Column>
-                <Column field="type_of_healthcare" header="Type of Healthcare" filter filterPlaceholder="Search by Type of Healthcare" style={{ minWidth: '12rem' }}></Column>
+                <Column field="type_of_healthcare" header="Type of Healthcare" filter filterPlaceholder="Search by Type of Healthcare" style={{ minWidth: '12rem' }} body={domainBodyTemplate} 
+                editor={(options) => cellEditor(options)}
+                            onCellEditComplete={onCellEditComplete}></Column>
                 <Column field="type_of_healthcare_providers_D1_D7" header="Type of Healthcare Providers" filter filterPlaceholder="Search by Healthcare Providers" style={{ minWidth: '12rem' }}></Column>
                 <Column field="cross_Cutting_Dimensions_A_I" header="Cross Cutting Dimensions A-I" filter filterPlaceholder="Search by Cross Cutting Dimensions A-I" style={{ minWidth: '12rem' }}></Column>
                 <Column field="cross_Cutting_Dimensions_Inputs_Process_Outputs" header="Cross Cutting Dimensions Inputs/Outputs" filter filterPlaceholder="Search by Inputs/Outputs" style={{ minWidth: '12rem' }}></Column>
@@ -669,7 +709,8 @@ const shortnameBodyTemplate = (rowData) => {
                 <Column field="calculation_Formula" header="Calculation Formula" filter filterPlaceholder="Search by Calculation Formula" style={{ minWidth: '12rem' }}></Column>
                 <Column field="numerator" header="Numerator" filter filterPlaceholder="Search by Numerator" style={{ minWidth: '12rem' }}></Column>
                 <Column field="numerator_Definitions" header="Numerator Definitions" filter filterPlaceholder="Search by Numerator Definitions" style={{ minWidth: '12rem' }}></Column>
-                <Column field="denominator" header="Denominator" filter filterPlaceholder="Search by Denominator" style={{ minWidth: '12rem' }}></Column>
+                <Column field="denominator" header="Denominator" filter filterPlaceholder="Search by Denominator" style={{ minWidth: '12rem' }}  editor={(options) => cellEditor(options)}
+                            onCellEditComplete={onCellEditComplete}></Column>
                 <Column field="denominator_Definitions" header="Denominator Definitions" filter filterPlaceholder="Search by Denominator Definitions" style={{ minWidth: '12rem' }}></Column>
                 <Column field="target_Population" header="Target Population" filter filterPlaceholder="Search by Target Population" style={{ minWidth: '12rem' }}></Column>
                 <Column field="field_Topic" header="Field Topic" filter filterPlaceholder="Search by Field Topic" style={{ minWidth: '12rem' }}></Column>
