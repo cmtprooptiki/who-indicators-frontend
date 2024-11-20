@@ -52,7 +52,7 @@ body {
 
 /* Styling the login box */
 .login-box {
-  background: rgb(24 19 140 / 28%);
+  background: rgba(204, 204, 205, 0.508);
   padding: 2rem;
   box-shadow: 0px 0px 10px 0px rgb(237 237 237 / 91%);
   border-radius: 8px;

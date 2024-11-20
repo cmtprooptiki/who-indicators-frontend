@@ -39,7 +39,7 @@ import { Avatar } from 'primereact/avatar';
 import { Ripple } from 'primereact/ripple';
 import { StyleClass } from 'primereact/styleclass';
 import cmt from "../logocmt.png";
-import cashflow_logo from "../Images/CashFlow logo-0white.png"
+import cashflow_logo from "../Images/who2.png"
 import { ReactComponent as WizardIcon } from '../icons/wizardicon.svg'; // Import the SVG as a React component
 
 import { Toolbar } from "primereact/toolbar";
@@ -112,45 +112,7 @@ const Navbar =()=>{
                                     </span>
                                 </div>
                                 <div className="overflow-y-auto " >
-                                    <ul className="list-none p-3 m-0">
-                                        <li>
-                                            <StyleClass nodeRef={btnRef1} selector="@next" enterClassName="hidden" enterActiveClassName="slidedown" leaveToClassName="hidden" leaveActiveClassName="slideup">
-                                                <div ref={btnRef1} className="p-ripple p-3 flex align-items-center justify-content-between text-600 cursor-pointer">
-                                                <div className="mr-2 text-gray-50" >
-                                                            <CashFlowIcon style={{ width: '4.5em', height: '4.5em' }}  className="" /> 
-                                                        </div> 
-                                                    <span className="font-medium">Cash Flow</span>
-                                                    <i className="pi pi-chevron-down text-gray-50"></i>
-                                                    <Ripple />
-                                                </div>
-                                            </StyleClass>
-                                            <ul className="list-none p-0 m-0 overflow-hidden">
-
-
-                                            <li>
-                                                <Link to="/statistics" style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                <div  className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-700  transition-duration-150 transition-colors w-full">
-                                                <div className="mr-2 text-gray-50" >
-                                                            <StatisticsIcon style={{ width: '3.5em', height: '3.5em' }}  className="" /> 
-                                                        </div>
-                                                {/* <i className="pi pi-chart-bar mr-2 text-gray-50"></i> */}
-                                                    <span className="font-medium">Στατιστικά</span>
-                                                    <Ripple />
-
-                                                    </div>
-                                                </Link>
-                                                </li>
-
-                                      
-
-                                 
-
-
-
-                                         
-                                            </ul>
-                                        </li>
-                                    </ul>
+                              
 
 
 
@@ -188,29 +150,7 @@ const Navbar =()=>{
                                            
 
 
-                                            <li><Link to="/customer" style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                    <div className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-700  transition-duration-150 transition-colors w-full">
-                                                        {/* <i className="pi pi-users mr-2 text-gray-50"></i> */}
-                                                        <div className="mr-2 text-gray-50" >
-                                                            <CustoEditIcon style={{ width: '3.5em', height: '3.5em' }}  className="" /> 
-                                                        </div>
-                                                        <span className="font-medium">Διαχείριση Πελατών</span>
-                                                        <Ripple />
-                                                    </div>
-                                                    </Link>
-                                                </li>
-                                             
-                                                <li><Link to="/budgetform"  style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                    <div  className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-700  transition-duration-150 transition-colors w-full">
-                                                        {/* <i className="pi pi-folder mr-2 text-gray-50"></i> */}
-                                                        <div className="mr-2 text-gray-50" >
-                                                            <BudgetIcon style={{ width: '3.5em', height: '3.5em' }}  className="" /> 
-                                                        </div>
-                                                        <span className="font-medium">Διαχείριση Budget</span>
-                                                        <Ripple />
-                                                    </div>
-                                                    </Link>
-                                                </li>
+                                          
                                             </ul>
                                         </li>
                                     </ul>
