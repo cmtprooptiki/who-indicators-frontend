@@ -1,4 +1,6 @@
 import React,{useState,useEffect, useRef} from 'react'
+
+
 import {Link} from "react-router-dom"
 import axios from 'axios'
 import { useSelector } from 'react-redux';
@@ -66,15 +68,7 @@ const IndicatorsList = () => {
     const dt = useRef(null);
 
 
-
-
-
- 
-
-
-
         
-   
 
     const formatCurrencyReport = (value) => {
         return Number(value);
@@ -251,38 +245,8 @@ const IndicatorsList = () => {
         setGlobalFilterValue('');
     };
 
-    // const initFilters = () => {
-    //     setFilters({
-    //         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+   
 
-    //         // part_number: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-    //         // title: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-    //         // percentage: { value: null, matchMode: FilterMatchMode.IN },
-    //         // delivery_date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-    //         // ammount: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-            
-            
-    //         // ammount_vat: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    //         // ammount_total: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-
-    //         // estimate_payment_date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-    //         // estimate_payment_date_2: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-    //         // estimate_payment_date_3: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-
-    //         // comments: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-
-            
-    //         // 'erga.name':{ value: null, matchMode: FilterMatchMode.IN },
-    //         // 'erga.shortname':{ value: null, matchMode: FilterMatchMode.IN },
-    //         // 'timologia.invoice_number':  { value: null, matchMode: FilterMatchMode.IN },
-            
-
-    //     });
-    //     setGlobalFilterValue('');
-    // };
-
-
- 
 
     const {user} = useSelector((state)=>state.auth)
 
@@ -732,7 +696,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
         <h1 className='title'>Δείκτες</h1>
         <div className='d-flex align-items-center gap-4'>
         {user && user.role ==="admin" && (
-        <Link to={"/paradotea/add"} className='button is-primary mb-2'><Button label="Προσθήκη Νεου Παραδοτέου" className='rounded' icon="pi pi-plus-circle"/></Link>
+        <Link to={"/indicators/add"} className='button is-primary mb-2'><Button label="New Indicator row" className='rounded' icon="pi pi-plus-circle"/></Link>
         )}
 
      {selectedIndicator.length > 0 && (

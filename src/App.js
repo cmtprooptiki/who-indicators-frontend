@@ -7,7 +7,7 @@ import Users from "./pages/user_pages/Users";
 import AddUser from "./pages/user_pages/AddUser";
 import EditUser from "./pages/user_pages/EditUser";
 
-
+import AddIndicator from "./pages/indicators_pages/AddIndicator";
 
 import { PrimeReactProvider } from 'primereact/api';
 import { Button } from 'primereact/button'; // Importing PrimeReact Button component
@@ -44,7 +44,8 @@ function App() {
           <Route path="/users/add" element={<AddUser/>}></Route>
           <Route path="/users/edit/:id" element={<EditUser/>}></Route>
 
-   
+          <Route path="/indicators/add" element={<AddIndicator/>}></Route>
+
 
 
           {/* <Route path="/statistics" element={<KpisDashboard/>}></Route>
