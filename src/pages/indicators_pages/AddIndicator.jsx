@@ -1,9 +1,9 @@
 import React,{useEffect} from 'react'
 import Layout from '../Layout'
-import FormAddParadotea from '../../components/paradotea_components/FormAddParadotea'
 import { useDispatch,useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { getMe } from '../../features/authSlice'
+import FormAddIndicator from '../../components/indicators_components/FormAddIndicator'
 
 const AddParadoteo = () =>{
     const dispatch = useDispatch();
@@ -21,7 +21,7 @@ const AddParadoteo = () =>{
     },[isError,navigate]);
     return (
         <Layout>
-            <FormAddParadotea/>
+            <FormAddIndicator/>
         </Layout>
     )
 }
