@@ -22,6 +22,7 @@ import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog'; // Import Dialog
 
 import { OverlayPanel } from 'primereact/overlaypanel';
+import indicatorsData from '../../data/indicators.json'; // Adjust the path based on file location
 
 const IndicatorsList = () => {
     const [indicators, setIndicators] = useState([]);
@@ -65,6 +66,16 @@ const IndicatorsList = () => {
         { label: 'All domains', value: 'All domains' },
     ];
 
+
+    const [dimensions, setDimension] = useState([
+        { label: 'safety', value: 'safety' },
+        { label: 'effectiveness', value: 'effectiveness' }
+
+
+    ]); // Example list of options for dropdown
+
+
+
     const dt = useRef(null);
 
 
@@ -79,11 +90,14 @@ const IndicatorsList = () => {
         setLoading(false);
         initFilters();
     },[]);
+    
 
     const getIndicators= async() =>{
         try {
             const response = await axios.get(`${apiBaseUrl}/indicators`, {timeout: 5000});
             const indData = response.data;
+
+            
             console.log("indicators:",indData);
 
             const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
@@ -94,19 +108,7 @@ const IndicatorsList = () => {
 
             const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || 'N/A'))]
             setType_Of_HealthCare(unique_type_of_healthcare)
-            // Extract unique statuses
-            //const uniqueProjectManager = [...new Set(ergaData.map(item => item.project_manager))];
-            // const uniqueTimologia = [...new Set(paraData.map(item => item.timologia?.invoice_number || 'N/A'))];
-        
-            // console.log("Unique Timologia:",uniqueTimologia);
-            // setTimologio(uniqueTimologia);
-
-            // const uniqueErga= [...new Set(paraData.map(item => item.erga?.name || 'N/A'))];
-            // setErgo(uniqueErga);
-
-            // const uniqueErgaShort= [...new Set(paraData.map(item => item.erga?.shortname || 'N/A'))];
-            // setErgoShort(uniqueErgaShort);
-
+          
             // Convert sign_date to Date object for each item in ergaData
             const parDataWithDates = indData.map(item => ({
                 ...item,
@@ -114,29 +116,12 @@ const IndicatorsList = () => {
                 //     ...item.erga,
                 //     name: item.erga?.name || 'N/A'
                 // },
-                // timologia: {
-                //     ...item.timologia,
-                //     invoice_number: item.timologia?.invoice_number || 'N/A'
-                // },
-                // delivery_date: new Date(item.delivery_date),
-                // ammount: parseFloat(item.ammount),
-                // ammount_vat: parseFloat(item.ammount_vat),
-                // ammount_total: parseFloat(item.ammount_total),
-                // estimate_payment_date: new Date(item.estimate_payment_date),
-                // estimate_payment_date_2:new Date(item.estimate_payment_date_2),
+              
                 // estimate_payment_date_3:new Date(item.estimate_payment_date_3)
             }));
 
 
-            // const sortedParaData = parDataWithDates.sort((a, b) => a.delivery_date - b.delivery_date);
-
-    
-            // console.log(sortedParaData); 
-            // Optionally log the transformed data
-    
-            // Assuming you have a state setter like setErga defined somewhere
             setIndicators(parDataWithDates);
-            // setFilteredParadotea(sortedParaData)
     
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -607,6 +592,15 @@ const q4all_Ind_numberItemTemplate = (option) => {
             }
             break;
 
+            case 'dimension': // For dropdown, directly assign the selected value
+            if (newValue) {
+                rowData[field] = newValue;
+                validEdit = true;
+            } else {
+                event.preventDefault();
+            }
+            break;
+
             default:
                 if (newValue.trim().length > 0) {
                     rowData[field] = newValue;
@@ -641,6 +635,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
         if (options.field === 'price') return priceEditor(options);
         else if (options.field === 'status') return dropdownEditor(options); // Dropdown editor for category
         else if (options.field === 'type_of_healthcare') return dropdownEditor2(options); // Dropdown editor for domain
+        else if (options.field === 'dimension') return dropdownEditor3(options); // Dropdown editor for domain
 
         else return textEditor(options);
     };
@@ -684,16 +679,102 @@ const q4all_Ind_numberItemTemplate = (option) => {
         );
     };
 
+    const dropdownEditor3 = (options) => {
+        return (
+            <Dropdown
+                value={options.value}
+                options={dimensions} // Use the list of options
+                onChange={(e) => options.editorCallback(e.value)}
+                placeholder="Select a dimension"
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+        );
+    };
+
     const domainBodyTemplate = (rowData) => {
         const domain = domains.find((cat) => cat.value === rowData.type_of_healthcare);
         return domain ? domain.label : rowData.type_of_healthcare; // Display label instead of value
     };
 
 
+    const dimensionBodyTemplate = (rowData) => {
+        const dimension = dimensions.find((cat) => cat.value === rowData.dimension);
+        return dimension ? dimension.label : rowData.dimension; // Display label instead of value
+    };
+
+
+
+    
+
+    const addEmptyRow = async () => {
+        try {
+            // Send a request to create a new empty row in the database
+            const response = await axios.post(`${apiBaseUrl}/indicators`, {
+                indicator_name: '',
+                q4all_Ind_number: '',
+                status: '',
+                indicator_cluster: '',
+                ind_Merge: '',
+                catergory_of_Indicator: '',
+                dimension: '',
+                type_of_healthcare: '',
+                type_of_healthcare_providers_D1_D7: '',
+                cross_Cutting_Dimensions_A_I: '',
+                cross_Cutting_Dimensions_Inputs_Process_Outputs: '',
+                dimensions_of_Quality_QoCOfficeReport: '',
+                priority: null,
+                data_collection: '',
+                collecting_National_Organization: '',
+                legal_Organizational_Requirements: null,
+                proponent_Organization_WG: '',
+                rationale_Description: '',
+                objective: '',
+                calculation_Formula: '',
+                numerator: '',
+                numerator_Definitions: '',
+                denominator: '',
+                denominator_Definitions: '',
+                target_Population: '',
+                field_Topic: '',
+                extraCol2: '',
+                periodicity: '',
+                data_Collection_Steps: '',
+                legal_Requirements: '',
+                responsible_for_Monitoring: '',
+                deadline_Reporting: '',
+                supervisor_Body: '',
+                management_Entity: '',
+                applicable_period: '',
+                unit_of_Measurement: '',
+                data_Source_Monitoring_Basis: '',
+                it_System_Source: '',
+                reference_Value_Target: '',
+                base_Value: '',
+                notes: '',
+                sources_and_Further_Reading: '',
+                selected_indicator: '',
+                adaptation_Needs: '',
+                piloting: '',
+                opinion_from_ODIPY_Other_experts: '',
+                pilot_outcome: '',
+                pilot_success_criteria: ''
+            });
+    
+            // Assuming the response contains the new row data, add it to the table
+            const newRow = response.data; // Assuming the newly created row is returned from the backend
+            console.log(newRow)
+            setIndicators((prevIndicators) => [...prevIndicators, newRow]); // Add to the current list of indicators
+    
+        } catch (error) {
+            console.error('Error adding new row:', error);
+        }
+    };
+    
+
 
     return(
         <div className="card" >
-        <h1 className='title'>Δείκτες</h1>
+        <h1 className='title'>Indicators Table</h1>
         <div className='d-flex align-items-center gap-4'>
         {user && user.role ==="admin" && (
         <Link to={"/indicators/add"} className='button is-primary mb-2'><Button label="New Indicator row" className='rounded' icon="pi pi-plus-circle"/></Link>
@@ -707,7 +788,19 @@ const q4all_Ind_numberItemTemplate = (option) => {
                 severity="danger" 
                 onClick={() => deleteIndicatorsSelected(selectedIndicator.map(indicator => indicator.id))} // Pass an array of selected IDs
             />
+
+            
         )} 
+
+        {/* New Empty Row Button */}
+        {user && user.role === "admin" && (
+                <Button
+                    label="New Empty Row"
+                    className="button is-primary mb-2 rounded"
+                    icon="pi pi-plus-circle"
+                    onClick={addEmptyRow} // Trigger the addEmptyRow function
+                />
+            )}
 
         </div>
 
@@ -736,95 +829,62 @@ const q4all_Ind_numberItemTemplate = (option) => {
             onSelectionChange={(e) => setSelectedIndicator(e.value)} // Updates state when selection changes
             selectionMode="checkbox"
             >
-                <Column selectionMode="multiple" headerStyle={{ width: '3em' }} frozen></Column>
+            <Column selectionMode="multiple" headerStyle={{ width: '3em' }} frozen></Column>
 
-                <Column className='font-bold' field="id" header="id" sortable style={{ minWidth: '2rem', color: 'black' }} frozen ></Column>
-                {/* <Column className="font-bold" header={renderColumnHeader('Έργα', 'erga.name')}
-                frozen={frozenColumns.includes('erga.name')} filterField="erga.name" showFilterMatchModes={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem', color: 'black' }}
-                    body={ergaBodyTemplate} filter filterElement={ergaFilterTemplate} />   */}
-                {/* <Column className="font-bold" header={renderColumnHeader('Ακρόνυμο έργου', 'erga.shortname')} filterField="erga.shortname" showFilterMatchModes={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem', color: 'black' }}
-                    body={shortnameBodyTemplate} filter filterElement={shortnameFilterTemplate} frozen={frozenColumns.includes('erga.shortname')} />   */}
+            <Column className='font-bold' field="id" header="id" sortable style={{ minWidth: '2rem', color: 'black' }} frozen ></Column>
 
-                {/* <Column field="indicator_name"  header="Παραδοτέο (Αριθμός)"  filter filterPlaceholder="Search by part number" style={{ minWidth: '12rem' }}></Column> */}
-                {/* <Column field="title" header="Τίτλος παραδοτέου"  filter filterPlaceholder="Search by title"  style={{ minWidth: '12rem' }}></Column>
-                <Column header="Ημερομηνία υποβολής" filterField="delivery_date" dataType="date" style={{ minWidth: '5rem' }} body={deliveryDateBodyTemplate} filter filterElement={deliveryDateFilterTemplate} ></Column>
+            <Column field="indicator_name" header="Indicator Name" filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="q4all_Ind_number" header="Q4All Indicator Number" filter filterField='q4all_Ind_number' filterElement={q4all_Ind_number_FilterTemplate} showFilterMatchModes={false} body={q4all_Ind_number_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
+            <Column field="status" header="Status" filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}  body={statusBodyTemplate} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="indicator_cluster" header="Indicator Cluster" filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="ind_Merge" header="Indicator Merge" filter filterPlaceholder="Search by Indicator Merge" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="catergory_of_Indicator" header="Category of Indicator" filter filterField='catergory_of_Indicator' filterElement={category_of_Indicator_FilterTemplate} showFilterMatchModes={false} body={category_of_Indicator_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
+            <Column field="dimension" header="Dimension" filter filterPlaceholder="Search by Dimension" style={{ minWidth: '12rem' }}  body={dimensionBodyTemplate} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="type_of_healthcare" header="Type of Healthcare" filter filterField = 'type_of_healthcare' filterElement={type_Of_HealthCare_FilterTemplate} showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={domainBodyTemplate}  editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="type_of_healthcare_providers_D1_D7" header="Type of Healthcare Providers" filter filterPlaceholder="Search by Healthcare Providers" style={{ minWidth: '12rem' }}></Column>
+            <Column field="cross_Cutting_Dimensions_A_I" header="Cross Cutting Dimensions A-I" filter filterPlaceholder="Search by Cross Cutting Dimensions A-I" style={{ minWidth: '12rem' }}></Column>
+            <Column field="cross_Cutting_Dimensions_Inputs_Process_Outputs" header="Cross Cutting Dimensions Inputs/Outputs" filter filterPlaceholder="Search by Inputs/Outputs" style={{ minWidth: '12rem' }}></Column>
+            <Column field="dimensions_of_Quality_QoCOfficeReport" header="Dimensions of Quality" filter filterPlaceholder="Search by Dimensions of Quality" style={{ minWidth: '12rem' }}></Column>
+            <Column field="priority" header="Priority" filter filterPlaceholder="Search by Priority" style={{ minWidth: '12rem' }}></Column>
+            <Column field="data_collection" header="Data Collection" filter filterPlaceholder="Search by Data Collection" style={{ minWidth: '12rem' }}></Column>
+            <Column field="collecting_National_Organization" header="Collecting Organization" filter filterPlaceholder="Search by Collecting Organization" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="legal_Organizational_Requirements" header="Legal Requirements" filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }}></Column>
+            <Column field="proponent_Organization_WG" header="Proponent Organization" filter filterPlaceholder="Search by Proponent Organization" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="rationale_Description" header="Rationale Description" filter filterPlaceholder="Search by Rationale Description" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="objective" header="Objective" filter filterPlaceholder="Search by Objective" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="calculation_Formula" header="Calculation Formula" filter filterPlaceholder="Search by Calculation Formula" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="numerator" header="Numerator" filter filterPlaceholder="Search by Numerator" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="numerator_Definitions" header="Numerator Definitions" filter filterPlaceholder="Search by Numerator Definitions" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="denominator" header="Denominator" filter filterPlaceholder="Search by Denominator" style={{ minWidth: '12rem' }}  editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="denominator_Definitions" header="Denominator Definitions" filter filterPlaceholder="Search by Denominator Definitions" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="target_Population" header="Target Population" filter filterPlaceholder="Search by Target Population" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="field_Topic" header="Field Topic" filter filterPlaceholder="Search by Field Topic" style={{ minWidth: '12rem' }}></Column>
+            <Column field="extraCol2" header="Extra Column 2" filter filterPlaceholder="Search by Extra Column 2" style={{ minWidth: '12rem' }}></Column>
+            <Column field="periodicity" header="Periodicity" filter filterPlaceholder="Search by Periodicity" style={{ minWidth: '12rem' }} ></Column>
+            <Column field="data_Collection_Steps" header="Data Collection Steps" filter filterPlaceholder="Search by Data Collection Steps" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="legal_Requirements" header="Legal Requirements" filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="responsible_for_Monitoring" header="Responsible for Monitoring" filter filterPlaceholder="Search by Responsible for Monitoring" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="deadline_Reporting" header="Deadline Reporting" filter filterPlaceholder="Search by Deadline Reporting" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="supervisor_Body" header="Supervisor Body" filter filterPlaceholder="Search by Supervisor Body" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="management_Entity" header="Management Entity" filter filterPlaceholder="Search by Management Entity" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="applicable_period" header="Applicable Period" filter filterPlaceholder="Search by Applicable Period" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="unit_of_Measurement" header="Unit of Measurement" filter filterPlaceholder="Search by Unit of Measurement" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="data_Source_Monitoring_Basis" header="Data Source Monitoring" filter filterPlaceholder="Search by Data Source Monitoring" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="it_System_Source" header="IT System Source" filter filterPlaceholder="Search by IT System Source" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="reference_Value_Target" header="Reference Value Target" filter filterPlaceholder="Search by Reference Value Target" style={{ minWidth: '12rem' }}></Column>
+            <Column field="base_Value" header="Base Value" filter filterPlaceholder="Search by Base Value" style={{ minWidth: '12rem' }}></Column>
+            <Column field="notes" header="Notes" filter filterPlaceholder="Search by Notes" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="sources_and_Further_Reading" header="Sources and Further Reading" filter filterPlaceholder="Search by Sources and Further Reading" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="selected_indicator" header="Selected Indicator" filter filterPlaceholder="Search by Selected Indicator" style={{ minWidth: '12rem' }}></Column>
+            <Column field="adaptation_Needs" header="Adaptation Needs" filter filterPlaceholder="Search by Adaptation Needs" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="piloting" header="Piloting" filter filterPlaceholder="Search by Piloting" style={{ minWidth: '12rem' }}></Column>
+            <Column field="opinion_from_ODIPY_Other_experts" header="Expert Opinion" filter filterPlaceholder="Search by Expert Opinion" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="pilot_outcome" header="Pilot Outcome" filter filterPlaceholder="Search by Pilot Outcome" style={{ minWidth: '12rem' }}></Column>
+            <Column field="pilot_success_criteria" header="Pilot Success Criteria" filter filterPlaceholder="Search by Success Criteria" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+                        
 
-                <Column field="percentage" header="Ποσοστό σύμβασης"  style={{ minWidth: '12rem' }}></Column> */}
-                {/* <Column field="ammount" header="ammount"  style={{ minWidth: '12rem' }} body={priceBodyTemplate}></Column>
-
-                {/* <Column header="Ποσό  (καθαρή αξία)" filterField="ammount" dataType="numeric" style={{ minWidth: '5rem' }} body={ammountBodyTemplate} filter filterElement={ammountFilterTemplate} />
-                <Column header="Ποσό ΦΠΑ " filterField="ammount_vat" dataType="numeric" style={{ minWidth: '5rem' }} body={ammount_vatBodyTemplate} filter filterElement={ammountFilterTemplate} />
-                <Column header="Σύνολο" filterField="ammount_total" dataType="numeric" style={{ minWidth: '5rem' }} body={ammount_totalBodyTemplate} filter filterElement={ammountFilterTemplate} />
-       
-                <Column header="Ημερομηνία πληρωμής (εκτίμηση)" filterField="estimate_payment_date" dataType="date" style={{ minWidth: '5rem' }} body={estimatePaymentDateBodyTemplate} filter filterElement={estimatePaymentDateFilterTemplate} ></Column>
-                <Column header="Ημερομηνία πληρωμής  (εκτίμηση 2)" filterField="estimate_payment_date_2" dataType="date" style={{ minWidth: '5rem' }} body={estimatePaymentDateBodyTemplate2} filter filterElement={estimatePaymentDateFilterTemplate2} ></Column>
-                <Column header="Ημερομηνία πληρωμής  (εκτίμηση 3)" filterField="estimate_payment_date_3" dataType="date" style={{ minWidth: '5rem' }} body={estimatePaymentDateBodyTemplate3} filter filterElement={estimatePaymentDateFilterTemplate3} ></Column>
-               
-                <Column field="comments" header="Σχόλιο"  filter filterPlaceholder="Search by comments"  style={{ minWidth: '12rem' }}></Column> */} 
-
-                {/* <Column  field="delivery_date" header="delivery_date" dataType="date" style={{ minWidth: '10rem' }} ></Column> */}
-                {/* <Column field="erga_id" header="erga_id" dataType="numeric"  sortable style={{ minWidth: '2rem' }} body={balanceBodyTemplate} filter filterElement={balanceFilterTemplate}  ></Column> */}
-                {/* <Column header="erga.name" filterField="erga.name" showFilterMatchModes={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem' }}
-                   ></Column>
-                 */}
-                <Column field="indicator_name" header="Indicator Name" filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '12rem' }}    editor={(options) => cellEditor(options)}
-                            onCellEditComplete={onCellEditComplete}></Column>
-                <Column field="q4all_Ind_number" header="Q4All Indicator Number" filter filterField='q4all_Ind_number' filterElement={q4all_Ind_number_FilterTemplate} showFilterMatchModes={false} body={q4all_Ind_number_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
-                <Column field="status" header="Status" filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}  body={statusBodyTemplate} 
-                editor={(options) => cellEditor(options)}
-                            onCellEditComplete={onCellEditComplete}></Column>
-                <Column field="indicator_cluster" header="Indicator Cluster" filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }}></Column>
-                <Column field="ind_Merge" header="Indicator Merge" filter filterPlaceholder="Search by Indicator Merge" style={{ minWidth: '12rem' }}></Column>
-                <Column field="catergory_of_Indicator" header="Category of Indicator" filter filterField='catergory_of_Indicator' filterElement={category_of_Indicator_FilterTemplate} showFilterMatchModes={false} body={category_of_Indicator_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
-                <Column field="dimension" header="Dimension" filter filterPlaceholder="Search by Dimension" style={{ minWidth: '12rem' }}></Column>
-                <Column field="type_of_healthcare" header="Type of Healthcare" filter filterField = 'type_of_healthcare' filterElement={type_Of_HealthCare_FilterTemplate} showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={domainBodyTemplate} 
-                editor={(options) => cellEditor(options)}
-                            onCellEditComplete={onCellEditComplete}></Column>
-                <Column field="type_of_healthcare_providers_D1_D7" header="Type of Healthcare Providers" filter filterPlaceholder="Search by Healthcare Providers" style={{ minWidth: '12rem' }}></Column>
-                <Column field="cross_Cutting_Dimensions_A_I" header="Cross Cutting Dimensions A-I" filter filterPlaceholder="Search by Cross Cutting Dimensions A-I" style={{ minWidth: '12rem' }}></Column>
-                <Column field="cross_Cutting_Dimensions_Inputs_Process_Outputs" header="Cross Cutting Dimensions Inputs/Outputs" filter filterPlaceholder="Search by Inputs/Outputs" style={{ minWidth: '12rem' }}></Column>
-                <Column field="dimensions_of_Quality_QoCOfficeReport" header="Dimensions of Quality" filter filterPlaceholder="Search by Dimensions of Quality" style={{ minWidth: '12rem' }}></Column>
-                <Column field="priority" header="Priority" filter filterPlaceholder="Search by Priority" style={{ minWidth: '12rem' }}></Column>
-                <Column field="data_collection" header="Data Collection" filter filterPlaceholder="Search by Data Collection" style={{ minWidth: '12rem' }}></Column>
-                <Column field="collecting_National_Organization" header="Collecting Organization" filter filterPlaceholder="Search by Collecting Organization" style={{ minWidth: '12rem' }}></Column>
-                <Column field="legal_Organizational_Requirements" header="Legal Requirements" filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }}></Column>
-                <Column field="proponent_Organization_WG" header="Proponent Organization" filter filterPlaceholder="Search by Proponent Organization" style={{ minWidth: '12rem' }}></Column>
-                <Column field="rationale_Description" header="Rationale Description" filter filterPlaceholder="Search by Rationale Description" style={{ minWidth: '12rem' }}></Column>
-                <Column field="objective" header="Objective" filter filterPlaceholder="Search by Objective" style={{ minWidth: '12rem' }}></Column>
-                <Column field="calculation_Formula" header="Calculation Formula" filter filterPlaceholder="Search by Calculation Formula" style={{ minWidth: '12rem' }}></Column>
-                <Column field="numerator" header="Numerator" filter filterPlaceholder="Search by Numerator" style={{ minWidth: '12rem' }}></Column>
-                <Column field="numerator_Definitions" header="Numerator Definitions" filter filterPlaceholder="Search by Numerator Definitions" style={{ minWidth: '12rem' }}></Column>
-                <Column field="denominator" header="Denominator" filter filterPlaceholder="Search by Denominator" style={{ minWidth: '12rem' }}  editor={(options) => cellEditor(options)}
-                            onCellEditComplete={onCellEditComplete}></Column>
-                <Column field="denominator_Definitions" header="Denominator Definitions" filter filterPlaceholder="Search by Denominator Definitions" style={{ minWidth: '12rem' }}></Column>
-                <Column field="target_Population" header="Target Population" filter filterPlaceholder="Search by Target Population" style={{ minWidth: '12rem' }}></Column>
-                <Column field="field_Topic" header="Field Topic" filter filterPlaceholder="Search by Field Topic" style={{ minWidth: '12rem' }}></Column>
-                <Column field="extraCol2" header="Extra Column 2" filter filterPlaceholder="Search by Extra Column 2" style={{ minWidth: '12rem' }}></Column>
-                <Column field="periodicity" header="Periodicity" filter filterPlaceholder="Search by Periodicity" style={{ minWidth: '12rem' }}></Column>
-                <Column field="data_Collection_Steps" header="Data Collection Steps" filter filterPlaceholder="Search by Data Collection Steps" style={{ minWidth: '12rem' }}></Column>
-                <Column field="legal_Requirements" header="Legal Requirements" filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }}></Column>
-                <Column field="responsible_for_Monitoring" header="Responsible for Monitoring" filter filterPlaceholder="Search by Responsible for Monitoring" style={{ minWidth: '12rem' }}></Column>
-                <Column field="deadline_Reporting" header="Deadline Reporting" filter filterPlaceholder="Search by Deadline Reporting" style={{ minWidth: '12rem' }}></Column>
-                <Column field="supervisor_Body" header="Supervisor Body" filter filterPlaceholder="Search by Supervisor Body" style={{ minWidth: '12rem' }}></Column>
-                <Column field="management_Entity" header="Management Entity" filter filterPlaceholder="Search by Management Entity" style={{ minWidth: '12rem' }}></Column>
-                <Column field="applicable_period" header="Applicable Period" filter filterPlaceholder="Search by Applicable Period" style={{ minWidth: '12rem' }}></Column>
-                <Column field="unit_of_Measurement" header="Unit of Measurement" filter filterPlaceholder="Search by Unit of Measurement" style={{ minWidth: '12rem' }}></Column>
-                <Column field="data_Source_Monitoring_Basis" header="Data Source Monitoring" filter filterPlaceholder="Search by Data Source Monitoring" style={{ minWidth: '12rem' }}></Column>
-                <Column field="it_System_Source" header="IT System Source" filter filterPlaceholder="Search by IT System Source" style={{ minWidth: '12rem' }}></Column>
-                <Column field="reference_Value_Target" header="Reference Value Target" filter filterPlaceholder="Search by Reference Value Target" style={{ minWidth: '12rem' }}></Column>
-                <Column field="base_Value" header="Base Value" filter filterPlaceholder="Search by Base Value" style={{ minWidth: '12rem' }}></Column>
-                <Column field="notes" header="Notes" filter filterPlaceholder="Search by Notes" style={{ minWidth: '12rem' }}></Column>
-                <Column field="sources_and_Further_Reading" header="Sources and Further Reading" filter filterPlaceholder="Search by Sources and Further Reading" style={{ minWidth: '12rem' }}></Column>
-                <Column field="selected_indicator" header="Selected Indicator" filter filterPlaceholder="Search by Selected Indicator" style={{ minWidth: '12rem' }}></Column>
-                <Column field="adaptation_Needs" header="Adaptation Needs" filter filterPlaceholder="Search by Adaptation Needs" style={{ minWidth: '12rem' }}></Column>
-                <Column field="piloting" header="Piloting" filter filterPlaceholder="Search by Piloting" style={{ minWidth: '12rem' }}></Column>
-                <Column field="opinion_from_ODIPY_Other_experts" header="Expert Opinion" filter filterPlaceholder="Search by Expert Opinion" style={{ minWidth: '12rem' }}></Column>
-                <Column field="pilot_outcome" header="Pilot Outcome" filter filterPlaceholder="Search by Pilot Outcome" style={{ minWidth: '12rem' }}></Column>
-                <Column field="pilot_success_criteria" header="Pilot Success Criteria" filter filterPlaceholder="Search by Success Criteria" style={{ minWidth: '12rem' }}></Column>
-                            
-
-             
-                <Column header="Ενέργειες" field="id" body={ActionsBodyTemplate} alignFrozen="right" frozen headerStyle={{ backgroundImage: 'linear-gradient(to right, #1400B9, #00B4D8)', color: '#ffffff' }}/>
+            
+            <Column header="Ενέργειες" field="id" body={ActionsBodyTemplate} alignFrozen="right" frozen headerStyle={{ backgroundImage: 'linear-gradient(to right, #1400B9, #00B4D8)', color: '#ffffff' }}/>
 
  </DataTable>
 
