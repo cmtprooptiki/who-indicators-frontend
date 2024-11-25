@@ -54,6 +54,9 @@ const IndicatorsList = () => {
     ]); // Example list of options for dropdown
 
 
+    const {user} = useSelector((state)=>state.auth)
+    console.log(user)
+
     const [selectedDomain, setSelectedDomain] = useState(null);
 
     const domains = [
@@ -86,11 +89,62 @@ const IndicatorsList = () => {
     };
 
     useEffect(()=>{
-        getIndicators()
+        // getIndicators()
+
+        if (user!=null && user.role=="user"){
+            getIndicatorsByUser()
+        }else if(user!=null && user.role=="admin"){
+            getIndicators()
+        }
+       
         setLoading(false);
         initFilters();
-    },[]);
+    },[user]);
     
+
+    const getIndicatorsByUser= async() =>{
+        console.log("mesa stin get",user.id)
+        try {
+            
+            console.log("user",user.id)
+            console.log("hgertei us id")
+            const response = await axios.get(`${apiBaseUrl}/indicatorsByUser/${user.id}`, {timeout: 5000});
+            const indData = response.data;
+
+            
+            console.log("indicators:",indData);
+
+            const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
+            setQ4AllIndNumber(uniqueq4all_Ind_number);
+
+            const unique_catergory_of_Indicator = [...new Set(indData.map(item => item.catergory_of_Indicator || 'N/A'))]
+            set_Category_Of_Indicator(unique_catergory_of_Indicator)
+
+            const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || 'N/A'))]
+            setType_Of_HealthCare(unique_type_of_healthcare)
+          
+            // Convert sign_date to Date object for each item in ergaData
+            const parDataWithDates = indData.map(item => ({
+                ...item,
+                // erga: {
+                //     ...item.erga,
+                //     name: item.erga?.name || 'N/A'
+                // },
+              
+                // estimate_payment_date_3:new Date(item.estimate_payment_date_3)
+            }));
+
+
+            setIndicators(parDataWithDates);
+    
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            // Handle errors as needed
+        }
+    }
+
+
+
 
     const getIndicators= async() =>{
         try {
@@ -233,7 +287,6 @@ const IndicatorsList = () => {
    
 
 
-    const {user} = useSelector((state)=>state.auth)
 
     // const clearLocks = () =>
     //     {
@@ -806,8 +859,8 @@ const q4all_Ind_numberItemTemplate = (option) => {
 
 
 
-<DataTable value={indicators} editMode="cell" ref = {dt} onValueChange={(indicators) => setFilteredIndicators(indicators)} paginator stripedRows
- rows={20} scrollable scrollHeight="600px" loading={loading} dataKey="id" 
+<DataTable value={indicators}  editMode="cell" ref = {dt} onValueChange={(indicators) => setFilteredIndicators(indicators)} paginator stripedRows
+ rows={25} scrollable scrollHeight="600px" loading={loading} dataKey="id" 
             filters={filters} 
             globalFilterFields={['id', 'indicator_name',  'q4all_Ind_number',
                  'status', 'indicator_cluster',      'ind_Merge',   'catergory_of_Indicator',   'dimension',     
