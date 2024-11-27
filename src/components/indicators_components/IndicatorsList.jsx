@@ -32,6 +32,7 @@ const IndicatorsList = () => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
   
     const [filteredIndicators, setFilteredIndicators] = useState([]);
+    const [RowsAffected, setRowsAffected] = useState(indicators.length)
 
     const [q4all_Ind_number, setQ4AllIndNumber] = useState([]);
     const [category_of_Indicator, set_Category_Of_Indicator] = useState([])
@@ -121,6 +122,7 @@ const IndicatorsList = () => {
         }
        
         setLoading(false);
+        setRowsAffected(indicators.length)
         initFilters();
     },[user]);
     
@@ -159,6 +161,8 @@ const IndicatorsList = () => {
 
 
             setIndicators(parDataWithDates);
+            setFilteredIndicators(parDataWithDates)
+            setRowsAffected(parDataWithDates.length)
     
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -175,7 +179,7 @@ const IndicatorsList = () => {
             const indData = response.data;
 
             
-            console.log("indicators:",indData);
+            // console.log("indicators:",indData);
 
             const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
             setQ4AllIndNumber(uniqueq4all_Ind_number);
@@ -199,6 +203,8 @@ const IndicatorsList = () => {
 
 
             setIndicators(parDataWithDates);
+            setFilteredIndicators(parDataWithDates)
+            setRowsAffected(parDataWithDates.length)
     
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -231,6 +237,8 @@ const IndicatorsList = () => {
     
         // Optionally update your state after deletion to remove the deleted items from the UI
         setIndicators((prevIndicator) => prevIndicator.filter((indicator) => !ids.includes(indicator.id)));
+        setFilteredIndicators((prevIndicator) => prevIndicator.filter((indicator) => !ids.includes(indicator.id)))
+        setRowsAffected(indicators.length)
         setSelectedIndicator([]); // Clear selection after deletion
     };
 
@@ -508,8 +516,8 @@ const IndicatorsList = () => {
     const category_of_Indicator_BodyTemplate = (rowData) => 
 {
      const category_of_indicators = rowData.catergory_of_Indicator || 'N/A';        // console.log("repsBodytempl",timologio)
-        console.log("timologio",category_of_indicators," type ",typeof(category_of_indicators));
-        console.log("rep body template: ",category_of_indicators)
+        // console.log("timologio",category_of_indicators," type ",typeof(category_of_indicators));
+        // console.log("rep body template: ",category_of_indicators)
     
         return (
             <div className="flex align-items-center gap-2">
@@ -528,8 +536,8 @@ const category_of_Indicator_FilterTemplate = (options) =>
 
 const category_of_Indicator_ItemTemplate = (option) => {
         // console.log("itemTemplate",option)
-        console.log("rep Item template: ",option)
-        console.log("rep Item type: ",typeof(option))
+        // console.log("rep Item template: ",option)
+        // console.log("rep Item type: ",typeof(option))
     
         return (
             <div className="flex align-items-center gap-2">
@@ -542,8 +550,8 @@ const category_of_Indicator_ItemTemplate = (option) => {
 const type_Of_HealthCare_BodyTemplate = (rowData) => 
 {
      const type_of_HealthCare = rowData.type_of_healthcare || 'N/A';        // console.log("repsBodytempl",timologio)
-        console.log("timologio",type_of_HealthCare," type ",typeof(type_of_HealthCare));
-        console.log("rep body template: ",type_of_HealthCare)
+        // console.log("timologio",type_of_HealthCare," type ",typeof(type_of_HealthCare));
+        // console.log("rep body template: ",type_of_HealthCare)
     
         return (
             <div className="flex align-items-center gap-2">
@@ -555,15 +563,15 @@ const type_Of_HealthCare_BodyTemplate = (rowData) =>
 
 const type_Of_HealthCare_FilterTemplate = (options) =>
 {
-    console.log('Current timologia filter value:', options.value);
+    // console.log('Current timologia filter value:', options.value);
     
     return (<MultiSelect value={options.value} options={type_of_healthcare} itemTemplate={type_Of_HealthCare_ItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
 }
 
 const type_Of_HealthCare_ItemTemplate = (option) => {
         // console.log("itemTemplate",option)
-        console.log("rep Item template: ",option)
-        console.log("rep Item type: ",typeof(option))
+        // console.log("rep Item template: ",option)
+        // console.log("rep Item type: ",typeof(option))
     
         return (
             <div className="flex align-items-center gap-2">
@@ -577,8 +585,8 @@ const type_Of_HealthCare_ItemTemplate = (option) => {
 const q4all_Ind_number_BodyTemplate = (rowData) => {
         
         const q4all_Ind_numberder = rowData.q4all_Ind_number || 'N/A';        // console.log("repsBodytempl",timologio)
-        console.log("timologio",q4all_Ind_numberder," type ",typeof(q4all_Ind_numberder));
-        console.log("rep body template: ",q4all_Ind_numberder)
+        // console.log("timologio",q4all_Ind_numberder," type ",typeof(q4all_Ind_numberder));
+        // console.log("rep body template: ",q4all_Ind_numberder)
     
         return (
             <div className="flex align-items-center gap-2">
@@ -592,7 +600,7 @@ const q4all_Ind_number_BodyTemplate = (rowData) => {
 
 const q4all_Ind_number_FilterTemplate = (options) =>
 {
-     console.log('Current timologia filter value:', options.value);
+    //  console.log('Current timologia filter value:', options.value);
     
     return (<MultiSelect value={options.value} options={q4all_Ind_number} itemTemplate={q4all_Ind_numberItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
     
@@ -600,8 +608,8 @@ const q4all_Ind_number_FilterTemplate = (options) =>
 
 const q4all_Ind_numberItemTemplate = (option) => {
         // console.log("itemTemplate",option)
-        console.log("rep Item template: ",option)
-        console.log("rep Item type: ",typeof(option))
+        // console.log("rep Item template: ",option)
+        // console.log("rep Item type: ",typeof(option))
     
         return (
             <div className="flex align-items-center gap-2">
@@ -840,6 +848,8 @@ const q4all_Ind_numberItemTemplate = (option) => {
             const newRow = response.data; // Assuming the newly created row is returned from the backend
             console.log(newRow)
             setIndicators((prevIndicators) => [...prevIndicators, newRow]); // Add to the current list of indicators
+            setFilteredIndicators((prevIndicators) => [...prevIndicators, newRow])
+            setRowsAffected(indicators.length)
     
         } catch (error) {
             console.error('Error adding new row:', error);
@@ -882,7 +892,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
 
 
 
-<DataTable value={indicators}  editMode="cell" ref = {dt} onValueChange={(indicators) => setFilteredIndicators(indicators)} paginator stripedRows
+<DataTable value={indicators}  editMode="cell" ref = {dt} onValueChange={(Updatedindicators) => {setFilteredIndicators(Updatedindicators);  console.log(filteredIndicators.length, "Toso mikos"); setRowsAffected(Updatedindicators.length)}} paginator stripedRows
  rows={25} scrollable scrollHeight="600px" loading={loading} dataKey="id" 
             filters={filters} 
             globalFilterFields={['id', 'indicator_name',  'q4all_Ind_number',
@@ -1017,7 +1027,9 @@ N/A - this "SELECTED INDICATOR" is to be used but does not need to be included i
 
     {/* Dialog for editing Paradotea */}
     
-
+            <div>
+                <h3>{RowsAffected} rows were found based on search criteria</h3>
+            </div>
         
        
     </div>
