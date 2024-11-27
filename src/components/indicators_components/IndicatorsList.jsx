@@ -643,7 +643,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
             />
         );
     };
-    const onCellEditComplete = async (e) => {
+    const onCellEditComplete2 = async (e) => {
         let { rowData, newValue, field, originalEvent: event } = e;
 
         let validEdit = false;
@@ -710,6 +710,73 @@ const q4all_Ind_numberItemTemplate = (option) => {
             } catch (error) {
                 console.error('Error updating the product:', error);
                 // Revert to the old value if the update fails
+                event.preventDefault();
+            }
+        }
+    };
+
+    const onCellEditComplete = async (e) => {
+        let { rowData, newValue, field, originalEvent: event } = e;
+     
+        let validEdit = false;
+     
+        // Utility function to safely handle string trimming
+        const safeTrim = (value) => (typeof value === 'string' ? value.trim() : '');
+     
+        switch (field) {
+            case 'quantity':
+            case 'price':
+                if (isPositiveInteger(newValue)) {
+                    rowData[field] = newValue;
+                    validEdit = true;
+                } else {
+                    console.warn(`Invalid value for ${field}: ${newValue}`);
+                    event.preventDefault();
+                }
+                break;
+     
+            case 'status':
+            case 'type_of_healthcare':
+            case 'dimension': 
+                // Handle dropdown fields
+                if (newValue) {
+                    rowData[field] = newValue;
+                    validEdit = true;
+                } else {
+                    console.warn(`Empty value for dropdown field ${field}`);
+                    event.preventDefault();
+                }
+                break;
+     
+            default:
+                // Handle other fields
+                const trimmedValue = safeTrim(newValue);
+                if (trimmedValue.length > 0) {
+                    rowData[field] = trimmedValue;
+                    validEdit = true;
+                } else {
+                    console.warn(`Empty or invalid value for field ${field}`);
+                    event.preventDefault();
+                }
+                break;
+        }
+     
+        if (validEdit) {
+            try {
+                // Make the API call to update the backend
+                const response = await axios.patch(`${apiBaseUrl}/indicators/${rowData.id}`, {
+                    [field]: newValue,
+                });
+     
+                if (response.status === 200) {
+                    console.log('Update successful');
+                } else {
+                    console.error(`Update failed with status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error updating the product:', error);
+     
+                // Optional: Revert to old value if update fails
                 event.preventDefault();
             }
         }
