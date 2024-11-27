@@ -862,21 +862,10 @@ const q4all_Ind_numberItemTemplate = (option) => {
         <div className="card" >
         <h1 className='title'>Indicators Table</h1>
         <div className='d-flex align-items-center gap-4'>
+        
         {user && user.role ==="admin" && (
-        <Link to={"/indicators/add"} className='button is-primary mb-2'><Button label="New Indicator row" className='rounded' icon="pi pi-plus-circle"/></Link>
+        <Link to={"/indicators/add"} ><Button label="New Indicator row" className='button is-primary mb-2 rounded' icon="pi pi-plus-circle"/></Link>
         )}
-
-     {selectedIndicator.length > 0 && (
-            <Button
-                className='button is-primary mb-2 rounded' 
-                label="Delete Selected" 
-                icon="pi pi-trash" 
-                severity="danger" 
-                onClick={() => deleteIndicatorsSelected(selectedIndicator.map(indicator => indicator.id))} // Pass an array of selected IDs
-            />
-
-            
-        )} 
 
         {/* New Empty Row Button */}
         {user && user.role === "admin" && (
@@ -884,10 +873,26 @@ const q4all_Ind_numberItemTemplate = (option) => {
                     label="New Empty Row"
                     className="button is-primary mb-2 rounded"
                     icon="pi pi-plus-circle"
+                    style = {{marginLeft: "50px"}}
                     onClick={addEmptyRow} // Trigger the addEmptyRow function
                 />
             )}
 
+     {selectedIndicator.length > 0 && (
+            <Button
+                className='button is-primary mb-2 rounded' 
+                label="Delete Selected" 
+                icon="pi pi-trash" 
+                severity="danger"
+                style = {{marginLeft: "50px"}} 
+                onClick={() => deleteIndicatorsSelected(selectedIndicator.map(indicator => indicator.id))} // Pass an array of selected IDs
+            />
+
+            
+        )} 
+        
+        
+        
         </div>
 
 
