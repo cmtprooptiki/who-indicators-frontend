@@ -18,7 +18,6 @@ import { InputNumber } from 'primereact/inputnumber';
 
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
-import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog'; // Import Dialog
 
 import { OverlayPanel } from 'primereact/overlaypanel';
@@ -38,8 +37,6 @@ const IndicatorsList = () => {
     const [category_of_Indicator, set_Category_Of_Indicator] = useState([])
     const [type_of_healthcare, setType_Of_HealthCare] = useState([])
     
-
-
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedIndicatorId, setSelectedIndicatorId] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
@@ -50,6 +47,8 @@ const IndicatorsList = () => {
         { label: 'Draft', value: 'Draft' },
         { label: 'Formally approved', value: 'Formally approved' },
         { label: 'Piloting', value: 'Piloting' },
+        { label: 'keno', value: '' },
+
         { label: 'Deployed', value: 'Deployed' },
 
 
@@ -79,12 +78,7 @@ const IndicatorsList = () => {
 
     ]); // Example list of options for dropdown
 
-
-
     const dt = useRef(null);
-
-
-        
 
     const formatCurrencyReport = (value) => {
         return Number(value);
@@ -113,7 +107,6 @@ const IndicatorsList = () => {
 
 
     useEffect(()=>{
-        // getIndicators()
 
         if (user!=null && user.role=="user"){
             getIndicatorsByUser()
@@ -128,16 +121,10 @@ const IndicatorsList = () => {
     
 
     const getIndicatorsByUser= async() =>{
-        console.log("mesa stin get",user.id)
         try {
-            
-            console.log("user",user.id)
-            console.log("hgertei us id")
             const response = await axios.get(`${apiBaseUrl}/indicatorsByUser/${user.id}`, {timeout: 5000});
             const indData = response.data;
 
-            
-            console.log("indicators:",indData);
 
             const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
             setQ4AllIndNumber(uniqueq4all_Ind_number);
@@ -151,12 +138,6 @@ const IndicatorsList = () => {
             // Convert sign_date to Date object for each item in ergaData
             const parDataWithDates = indData.map(item => ({
                 ...item,
-                // erga: {
-                //     ...item.erga,
-                //     name: item.erga?.name || 'N/A'
-                // },
-              
-                // estimate_payment_date_3:new Date(item.estimate_payment_date_3)
             }));
 
 
@@ -166,7 +147,6 @@ const IndicatorsList = () => {
     
         } catch (error) {
             console.error('Error fetching data:', error);
-            // Handle errors as needed
         }
     }
 
@@ -179,7 +159,6 @@ const IndicatorsList = () => {
             const indData = response.data;
 
             
-            // console.log("indicators:",indData);
 
             const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
             setQ4AllIndNumber(uniqueq4all_Ind_number);
@@ -190,15 +169,8 @@ const IndicatorsList = () => {
             const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || 'N/A'))]
             setType_Of_HealthCare(unique_type_of_healthcare)
           
-            // Convert sign_date to Date object for each item in ergaData
             const parDataWithDates = indData.map(item => ({
                 ...item,
-                // erga: {
-                //     ...item.erga,
-                //     name: item.erga?.name || 'N/A'
-                // },
-              
-                // estimate_payment_date_3:new Date(item.estimate_payment_date_3)
             }));
 
 
@@ -208,7 +180,6 @@ const IndicatorsList = () => {
     
         } catch (error) {
             console.error('Error fetching data:', error);
-            // Handle errors as needed
         }
     }
 
@@ -218,21 +189,14 @@ const IndicatorsList = () => {
         getIndicators();
     }
     const deleteIndicatorsSelected = (ids) => {
-        // Assuming you have an API call or logic for deletion
-        // Example: If using a REST API for deletion, you might perform a loop or bulk deletion
         if (Array.isArray(ids)) {
             // Handle multiple deletions
             ids.forEach(async (id) => {
-                // Existing logic to delete a single Dosi by id, e.g., an API call
                 console.log(`Deleting Dosi with ID: ${id}`);
                 await axios.delete(`${apiBaseUrl}/indicators/${id}`);
-
-                // Add your deletion logic here
             });
         } else {
-            // Fallback for single ID deletion (just in case)
             console.log(`Deleting Dosi with ID: ${ids}`);
-            // Add your deletion logic here
         }
     
         // Optionally update your state after deletion to remove the deleted items from the UI
@@ -317,59 +281,10 @@ const IndicatorsList = () => {
 
    
 
-
-
-    // const clearLocks = () =>
-    //     {
-    //         setFrozenColumns([]); // Clear all frozen columns
-    //     }
-
-        const allColumnFields = ['erga.name', 'erga.shortname'];
-        const [frozenColumns, setFrozenColumns] = useState(['erga.name', 'erga.shortname']); // Initially frozen column(s)
-        const allColumnsFrozen = frozenColumns.length === allColumnFields.length;
-        const buttonLabel = allColumnsFrozen ? 'Unlock All' : 'Lock All';
-        // Function to toggle a column's frozen state
-        const toggleFreezeColumn = (fieldName) => {
-            setFrozenColumns((prev) =>
-                prev.includes(fieldName)
-                    ? prev.filter(col => col !== fieldName) // Unfreeze column if already frozen
-                    : [...prev, fieldName]                  // Freeze column if not frozen
-            );
-        };
-    
-         // Function to toggle all columns
-         const toggleAllColumns = () => {
-            if (allColumnsFrozen) {
-                // If all columns are frozen, unlock them
-                setFrozenColumns([]);
-            } else {
-                // If not all columns are frozen, lock all of them
-                setFrozenColumns(allColumnFields);
-            }
-        };
-    
-        const renderColumnHeader = (headerText, fieldName) => (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                
-                <span
-                    onClick={() => toggleFreezeColumn(fieldName)}
-                    style={{ cursor: 'pointer', marginRight: '8px' }}
-                    title={frozenColumns.includes(fieldName) ? 'Unlock Column' : 'Lock Column'}
-                >
-                    {frozenColumns.includes(fieldName) ? <i className="pi pi-lock" style={{ fontSize: '1rem' }}></i> : <i className="pi pi-lock-open" style={{ fontSize: '1rem' }}></i>}
-                </span>
-                <span>{headerText}</span>
-            </div>
-        );
-    
-  
-
     const renderHeader = () => {
         return (
             <div className="header-container flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined onClick={clearFilter} />
-
-                <Button type="button" outlined label={buttonLabel} icon={buttonLabel === 'Unlock All' ? 'pi pi-unlock' : 'pi pi-lock'} onClick={toggleAllColumns} className="p-mb-3" />
                {/* Responsive Search Field */}
                <div className="responsive-search-field">
                     <IconField iconPosition="left">
@@ -382,46 +297,13 @@ const IndicatorsList = () => {
                     </IconField>
                 </div>
                 
-                {/* <Button className='action-button'  type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
-                <Button className='action-button'  type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" /> */}
             </div>
         );
     };
    
     
-    const formatDate = (value) => {
-        let date = new Date(value);
-        let epochDate = new Date('1970-01-01T00:00:00Z');
-        if (date.getTime() === epochDate.getTime()) 
-        {
-            return null;
-        }
-        if (!isNaN(date)) {
-            return date.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            
-        } else {
-            return "Invalid date";
-        }
-    };
-    
-
-    const formatCurrency = (value) => {
-        return Number(value).toLocaleString('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    };
-
-    
-
-
-
-
     const header = renderHeader();
 
-
- 
 
     const ActionsBodyTemplate = (rowData) => {
         const id = rowData.id;
@@ -464,7 +346,7 @@ const IndicatorsList = () => {
                     onMouseLeave={handleMouseLeave} // Hide on overlay mouse leave
                     onMouseEnter={() => {
                         if (hideTimeout) clearTimeout(hideTimeout);
-                    }} // Clear hide timeout on overlay mouse enter
+                    }} 
                 >
                     <div className="flex flex-row gap-2">
                         {/* Only show the Profile button for non-admin users */}
@@ -515,33 +397,24 @@ const IndicatorsList = () => {
     };
     const category_of_Indicator_BodyTemplate = (rowData) => 
 {
-     const category_of_indicators = rowData.catergory_of_Indicator || 'N/A';        // console.log("repsBodytempl",timologio)
-        // console.log("timologio",category_of_indicators," type ",typeof(category_of_indicators));
-        // console.log("rep body template: ",category_of_indicators)
+     const category_of_indicators = rowData.catergory_of_Indicator || 'N/A';       
     
         return (
             <div className="flex align-items-center gap-2">
-                {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
                 <span>{category_of_indicators}</span>
             </div>
         );
 }
 
 const category_of_Indicator_FilterTemplate = (options) =>
-{
-    console.log('Current timologia filter value:', options.value);
-    
+{   
     return (<MultiSelect value={options.value} options={category_of_Indicator} itemTemplate={category_of_Indicator_ItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
 }
 
 const category_of_Indicator_ItemTemplate = (option) => {
-        // console.log("itemTemplate",option)
-        // console.log("rep Item template: ",option)
-        // console.log("rep Item type: ",typeof(option))
     
         return (
             <div className="flex align-items-center gap-2">
-                {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
                 <span>{option}</span>
             </div>
         );
@@ -549,13 +422,10 @@ const category_of_Indicator_ItemTemplate = (option) => {
 
 const type_Of_HealthCare_BodyTemplate = (rowData) => 
 {
-     const type_of_HealthCare = rowData.type_of_healthcare || 'N/A';        // console.log("repsBodytempl",timologio)
-        // console.log("timologio",type_of_HealthCare," type ",typeof(type_of_HealthCare));
-        // console.log("rep body template: ",type_of_HealthCare)
+     const type_of_HealthCare = rowData.type_of_healthcare || 'N/A';        
     
         return (
             <div className="flex align-items-center gap-2">
-                {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
                 <span>{type_of_HealthCare}</span>
             </div>
         );
@@ -563,19 +433,15 @@ const type_Of_HealthCare_BodyTemplate = (rowData) =>
 
 const type_Of_HealthCare_FilterTemplate = (options) =>
 {
-    // console.log('Current timologia filter value:', options.value);
+   
     
     return (<MultiSelect value={options.value} options={type_of_healthcare} itemTemplate={type_Of_HealthCare_ItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
 }
 
 const type_Of_HealthCare_ItemTemplate = (option) => {
-        // console.log("itemTemplate",option)
-        // console.log("rep Item template: ",option)
-        // console.log("rep Item type: ",typeof(option))
     
         return (
             <div className="flex align-items-center gap-2">
-                {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
                 <span>{option}</span>
             </div>
         );
@@ -584,13 +450,10 @@ const type_Of_HealthCare_ItemTemplate = (option) => {
 
 const q4all_Ind_number_BodyTemplate = (rowData) => {
         
-        const q4all_Ind_numberder = rowData.q4all_Ind_number || 'N/A';        // console.log("repsBodytempl",timologio)
-        // console.log("timologio",q4all_Ind_numberder," type ",typeof(q4all_Ind_numberder));
-        // console.log("rep body template: ",q4all_Ind_numberder)
+        const q4all_Ind_numberder = rowData.q4all_Ind_number || 'N/A';      
     
         return (
             <div className="flex align-items-center gap-2">
-                {/* <img alt={representative} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" /> */}
                 <span>{q4all_Ind_numberder}</span>
             </div>
         );
@@ -600,20 +463,15 @@ const q4all_Ind_number_BodyTemplate = (rowData) => {
 
 const q4all_Ind_number_FilterTemplate = (options) =>
 {
-    //  console.log('Current timologia filter value:', options.value);
     
     return (<MultiSelect value={options.value} options={q4all_Ind_number} itemTemplate={q4all_Ind_numberItemTemplate} onChange={(e) => options.filterCallback(e.value)} placeholder="Any" className="p-column-filter" />);
     
 }
 
 const q4all_Ind_numberItemTemplate = (option) => {
-        // console.log("itemTemplate",option)
-        // console.log("rep Item template: ",option)
-        // console.log("rep Item type: ",typeof(option))
-    
+        
         return (
             <div className="flex align-items-center gap-2">
-                {/* <img alt={option} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" /> */}
                 <span>{option}</span>
             </div>
         );
@@ -658,7 +516,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
                 }
                 break;
 
-            case 'status': // For dropdown, directly assign the selected value
+            case 'status': 
             if (newValue) {
                 rowData[field] = newValue;
                 validEdit = true;
@@ -667,7 +525,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
             }
             break;
 
-            case 'type_of_healthcare': // For dropdown, directly assign the selected value
+            case 'type_of_healthcare': 
             if (newValue) {
                 rowData[field] = newValue;
                 validEdit = true;
@@ -676,7 +534,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
             }
             break;
 
-            case 'dimension': // For dropdown, directly assign the selected value
+            case 'dimension': 
             if (newValue) {
                 rowData[field] = newValue;
                 validEdit = true;
@@ -735,8 +593,36 @@ const q4all_Ind_numberItemTemplate = (option) => {
                 }
                 break;
      
-            case 'status':
-            case 'type_of_healthcare':
+            case 'status': // For dropdown, directly assign the selected value
+                if (newValue) {
+                    console.log("Status is newvalue:",newValue)
+                    
+                    if(newValue.value==''){
+
+                        console.log("Status is keno")
+                        newValue=''
+                        rowData[field] = newValue;
+                        validEdit = true;
+                    }
+                    else{
+
+                    rowData[field] = newValue;
+                    validEdit = true;}
+                    
+                } else {
+                    event.preventDefault();
+                }
+                break;
+    
+            case 'type_of_healthcare': // For dropdown, directly assign the selected value
+                if (newValue) {
+                    rowData[field] = newValue;
+                    validEdit = true;
+                } else {
+                    event.preventDefault();
+                }
+                break;
+
             case 'dimension': 
                 // Handle dropdown fields
                 if (newValue) {
@@ -751,7 +637,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
             default:
                 // Handle other fields
                 const trimmedValue = safeTrim(newValue);
-                if (trimmedValue.length > 0) {
+                if (trimmedValue.length >= 0) {
                     rowData[field] = trimmedValue;
                     validEdit = true;
                 } else {
@@ -775,8 +661,6 @@ const q4all_Ind_numberItemTemplate = (option) => {
                 }
             } catch (error) {
                 console.error('Error updating the product:', error);
-     
-                // Optional: Revert to old value if update fails
                 event.preventDefault();
             }
         }
@@ -934,7 +818,6 @@ const q4all_Ind_numberItemTemplate = (option) => {
         <Link to={"/indicators/add"} ><Button label="New Indicator row" className='button is-primary mb-2 rounded' icon="pi pi-plus-circle"/></Link>
         )}
 
-        {/* New Empty Row Button */}
         {user && user.role === "admin" && (
                 <Button
                     label="New Empty Row"
