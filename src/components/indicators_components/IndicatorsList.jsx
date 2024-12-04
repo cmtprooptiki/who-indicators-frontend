@@ -18,15 +18,36 @@ import { InputNumber } from 'primereact/inputnumber';
 
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
-import { Dialog } from 'primereact/dialog'; // Import Dialog
+// import { Dialog } from 'primereact/dialog'; // Import Dialog
 
 import { OverlayPanel } from 'primereact/overlaypanel';
-import indicatorsData from '../../data/indicators.json'; // Adjust the path based on file location
+// import indicatorsData from '../../data/indicators.json'; // Adjust the path based on file location
 import { Tooltip } from "primereact/tooltip";
+import { 
+    statuses,
+    domains, 
+    QoCOfficeReportlist, 
+    prioritylist, 
+    data_collection_list, 
+    type_of_healthcare_providers_D1_D7list,
+    category_of_indicators,
+    dimensions,
+    classification_dimension,
+    cross_Cutting_Dimensions_Inputs_Process_Outputlist,
+    legal_Organizational_Requirements_list, 
+    selected_indicator_list, 
+    piloting_list, 
+    pilot_outcome_list 
+} from './IndicatorUtils';  // Adjust the path as necessary
+import { headers } from './headersConfig';  // Import the header configuration
+import { initFiltersConfig } from './filtersConfig';
+
 
 const IndicatorsList = () => {
     const [indicators, setIndicators] = useState([]);
-    const [filters, setFilters] = useState(null);
+    // const [filters, setFilters] = useState(null);
+    const [filters, setFilters] = useState(initFiltersConfig);
+
     const [loading, setLoading] = useState(true);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
   
@@ -40,51 +61,19 @@ const IndicatorsList = () => {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedIndicatorId, setSelectedIndicatorId] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
+
     const [selectedIndicator, setSelectedIndicator] = useState([]);
-
-    const [statuses, setStatuses] = useState([
-        { label: 'Proposed', value: 'Proposed' },
-        { label: 'Draft', value: 'Draft' },
-        { label: 'Formally approved', value: 'Formally approved' },
-        { label: 'Piloting', value: 'Piloting' },
-        { label: 'keno', value: '' },
-
-        { label: 'Deployed', value: 'Deployed' },
-
-
-    ]); // Example list of options for dropdown
 
 
     const {user} = useSelector((state)=>state.auth)
     console.log(user)
 
-    const [selectedDomain, setSelectedDomain] = useState(null);
 
-    const domains = [
-        { label: 'Secundary Healthcare',value:'Secundary Healthcare' },
-        { label: 'Home/telecare and Active life', value: 'Home/telecare and Active life' },
-        { label: 'Primary Care', value: 'Primary Care' },
-        { label: 'Public health indicators', value:'Public health indicators' },
-        { label: 'NCDs and Mental Health',value:'NCDs and Mental Health' },
-        { label: 'Palliative and Long term care', value: 'Palliative and Long term care' },
-        { label: 'All domains', value: 'All domains' },
-    ];
-
-
-    const [dimensions, setDimension] = useState([
-        { label: 'safety', value: 'safety' },
-        { label: 'effectiveness', value: 'effectiveness' }
-
-
-    ]); // Example list of options for dropdown
+   
 
     const dt = useRef(null);
 
-    const formatCurrencyReport = (value) => {
-        return Number(value);
-    };
-
-
+    //hint custom
     const customHeader = (title, hint, field) => (
       <div>
         <div>{title}</div>
@@ -119,20 +108,20 @@ const IndicatorsList = () => {
         initFilters();
     },[user]);
     
-
+    //get data for specific userid
     const getIndicatorsByUser= async() =>{
         try {
             const response = await axios.get(`${apiBaseUrl}/indicatorsByUser/${user.id}`, {timeout: 5000});
             const indData = response.data;
 
 
-            const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
+            const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || ''))];
             setQ4AllIndNumber(uniqueq4all_Ind_number);
 
-            const unique_catergory_of_Indicator = [...new Set(indData.map(item => item.catergory_of_Indicator || 'N/A'))]
+            const unique_catergory_of_Indicator = [...new Set(indData.map(item => item.catergory_of_Indicator || ''))]
             set_Category_Of_Indicator(unique_catergory_of_Indicator)
 
-            const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || 'N/A'))]
+            const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || ''))]
             setType_Of_HealthCare(unique_type_of_healthcare)
           
             // Convert sign_date to Date object for each item in ergaData
@@ -151,8 +140,7 @@ const IndicatorsList = () => {
     }
 
 
-
-
+    //get data for admin
     const getIndicators= async() =>{
         try {
             const response = await axios.get(`${apiBaseUrl}/indicators`, {timeout: 5000});
@@ -160,13 +148,13 @@ const IndicatorsList = () => {
 
             
 
-            const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || 'N/A'))];
+            const uniqueq4all_Ind_number= [...new Set(indData.map(item => item.q4all_Ind_number || ''))];
             setQ4AllIndNumber(uniqueq4all_Ind_number);
 
-            const unique_catergory_of_Indicator = [...new Set(indData.map(item => item.catergory_of_Indicator || 'N/A'))]
+            const unique_catergory_of_Indicator = [...new Set(indData.map(item => item.catergory_of_Indicator || ''))]
             set_Category_Of_Indicator(unique_catergory_of_Indicator)
 
-            const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || 'N/A'))]
+            const unique_type_of_healthcare = [...new Set(indData.map(item => item.type_of_healthcare || ''))]
             setType_Of_HealthCare(unique_type_of_healthcare)
           
             const parDataWithDates = indData.map(item => ({
@@ -223,59 +211,7 @@ const IndicatorsList = () => {
         setGlobalFilterValue(value);
     };
     const initFilters = () => {
-        setFilters({
-            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            id: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            indicator_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            q4all_Ind_number: { value: null, matchMode: FilterMatchMode.IN },
-            status: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            indicator_cluster: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            ind_Merge: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            catergory_of_Indicator: { value: null, matchMode: FilterMatchMode.IN },
-            dimension: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            type_of_healthcare: { value: null, matchMode: FilterMatchMode.IN },
-            type_of_healthcare_providers_D1_D7: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            cross_Cutting_Dimensions_A_I: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            cross_Cutting_Dimensions_Inputs_Process_Outputs: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            dimensions_of_Quality_QoCOfficeReport: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            priority: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-            data_collection: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            collecting_National_Organization: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            legal_Organizational_Requirements: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-            proponent_Organization_WG: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            rationale_Description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            objective: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            calculation_Formula: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            numerator: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            numerator_Definitions: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            denominator: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            denominator_Definitions: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            target_Population: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            field_Topic: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            extraCol2: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            periodicity: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            data_Collection_Steps: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            legal_Requirements: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            responsible_for_Monitoring: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            deadline_Reporting: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            supervisor_Body: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            management_Entity: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            applicable_period: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            unit_of_Measurement: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            data_Source_Monitoring_Basis: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            it_System_Source: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            reference_Value_Target: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            base_Value: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            notes: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            sources_and_Further_Reading: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            selected_indicator: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            adaptation_Needs: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            piloting: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            opinion_from_ODIPY_Other_experts: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            pilot_outcome: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            pilot_success_criteria: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        });
-     
+        setFilters(initFiltersConfig());
         setGlobalFilterValue('');
     };
 
@@ -395,16 +331,19 @@ const IndicatorsList = () => {
             </div>
         );
     };
-    const category_of_Indicator_BodyTemplate = (rowData) => 
-{
-     const category_of_indicators = rowData.catergory_of_Indicator || 'N/A';       
+
+//Filters starts
+
+// const category_of_Indicator_BodyTemplate = (rowData) => 
+// {
+//      const category_of_indicators = rowData.catergory_of_Indicator || 'N/A';       
     
-        return (
-            <div className="flex align-items-center gap-2">
-                <span>{category_of_indicators}</span>
-            </div>
-        );
-}
+//         return (
+//             <div className="flex align-items-center gap-2">
+//                 <span>{category_of_indicators}</span>
+//             </div>
+//         );
+// }
 
 const category_of_Indicator_FilterTemplate = (options) =>
 {   
@@ -420,16 +359,16 @@ const category_of_Indicator_ItemTemplate = (option) => {
         );
     };
 
-const type_Of_HealthCare_BodyTemplate = (rowData) => 
-{
-     const type_of_HealthCare = rowData.type_of_healthcare || 'N/A';        
+// const type_Of_HealthCare_BodyTemplate = (rowData) => 
+// {
+//      const type_of_HealthCare = rowData.type_of_healthcare || 'N/A';        
     
-        return (
-            <div className="flex align-items-center gap-2">
-                <span>{type_of_HealthCare}</span>
-            </div>
-        );
-}
+//         return (
+//             <div className="flex align-items-center gap-2">
+//                 <span>{type_of_HealthCare}</span>
+//             </div>
+//         );
+// }
 
 const type_Of_HealthCare_FilterTemplate = (options) =>
 {
@@ -477,7 +416,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
         );
     };
 
-
+//Filters end
     const isPositiveInteger = (val) => {
         let str = String(val);
         str = str.trim();
@@ -501,77 +440,7 @@ const q4all_Ind_numberItemTemplate = (option) => {
             />
         );
     };
-    const onCellEditComplete2 = async (e) => {
-        let { rowData, newValue, field, originalEvent: event } = e;
-
-        let validEdit = false;
-        switch (field) {
-            case 'quantity':
-            case 'price':
-                if (isPositiveInteger(newValue)) {
-                    rowData[field] = newValue;
-                    validEdit = true;
-                } else {
-                    event.preventDefault();
-                }
-                break;
-
-            case 'status': 
-            if (newValue) {
-                rowData[field] = newValue;
-                validEdit = true;
-            } else {
-                event.preventDefault();
-            }
-            break;
-
-            case 'type_of_healthcare': 
-            if (newValue) {
-                rowData[field] = newValue;
-                validEdit = true;
-            } else {
-                event.preventDefault();
-            }
-            break;
-
-            case 'dimension': 
-            if (newValue) {
-                rowData[field] = newValue;
-                validEdit = true;
-            } else {
-                event.preventDefault();
-            }
-            break;
-
-            default:
-                if (newValue.trim().length > 0) {
-                    rowData[field] = newValue;
-                    validEdit = true;
-                } else {
-                    event.preventDefault();
-                }
-                break;
-        }
-
-        if (validEdit) {
-            try {
-                // Update the database via an API call
-                const response =await axios.patch(`${apiBaseUrl}/indicators/${rowData.id}`, {
-                    [field]: newValue
-                });
-
-                if (response.status === 200) {
-                    console.log('Update successful');
-                } else {
-                    console.error('Update failed');
-                }
-            } catch (error) {
-                console.error('Error updating the product:', error);
-                // Revert to the old value if the update fails
-                event.preventDefault();
-            }
-        }
-    };
+ 
 
     const onCellEditComplete = async (e) => {
         let { rowData, newValue, field, originalEvent: event } = e;
@@ -592,48 +461,203 @@ const q4all_Ind_numberItemTemplate = (option) => {
                     event.preventDefault();
                 }
                 break;
-     
             case 'status': // For dropdown, directly assign the selected value
                 if (newValue) {
                     console.log("Status is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
                     
-                    if(newValue.value==''){
-
-                        console.log("Status is keno")
-                        newValue=''
-                        rowData[field] = newValue;
-                        validEdit = true;
-                    }
-                    else{
-
-                    rowData[field] = newValue;
-                    validEdit = true;}
-                    
-                } else {
+                } 
+                else {
                     event.preventDefault();
                 }
+
+                break;
+
+     
+            case 'catergory_of_Indicator': // For dropdown, directly assign the selected value
+                if (newValue) {
+                    console.log("Status is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
                 break;
     
             case 'type_of_healthcare': // For dropdown, directly assign the selected value
                 if (newValue) {
-                    rowData[field] = newValue;
-                    validEdit = true;
-                } else {
+                    console.log("type of heal is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
                     event.preventDefault();
                 }
+
+                break;
+
+            case 'type_of_healthcare_providers_D1_D7':
+                if (newValue) {
+                    console.log("type of heal is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
                 break;
 
             case 'dimension': 
                 // Handle dropdown fields
                 if (newValue) {
-                    rowData[field] = newValue;
+                    console.log("dimension is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+            
+            case 'cross_Cutting_Dimensions_A_I': 
+                // Handle multi-select dropdown fields
+                 if (Array.isArray(newValue)) {
+                     console.log("dimension is newvalue:", newValue);
+                     // Convert the array to a comma-separated string
+                     rowData[field] = newValue.join(', ');  // Join array elements into a string "A, B, C"
+                     
+                     validEdit = true;
+                 } else if (typeof newValue === 'string' && newValue.trim() === '') {
+                     // Handle case where value is cleared (empty string)
+                     rowData[field] = '';
+                     validEdit = true;
+                 } else if (typeof newValue === 'string') {
+                     // If the value is already a string, ensure it is trimmed and stored as is
+                     rowData[field] = newValue.trim();
+                     validEdit = true;
+                 } else {
+                     // In case of invalid value
+                     console.warn(`Invalid value for ${field}:`, newValue);
+                     event.preventDefault();
+                 }
+                 break;
+
+            case 'cross_Cutting_Dimensions_Inputs_Process_Outputs': 
+               // Handle multi-select dropdown fields
+                if (Array.isArray(newValue)) {
+                    console.log("dimension is newvalue:", newValue);
+                    // Convert the array to a comma-separated string
+                    rowData[field] = newValue.join(', ');  // Join array elements into a string "A, B, C"
+                    
+                    validEdit = true;
+                } else if (typeof newValue === 'string' && newValue.trim() === '') {
+                    // Handle case where value is cleared (empty string)
+                    rowData[field] = '';
+                    validEdit = true;
+                } else if (typeof newValue === 'string') {
+                    // If the value is already a string, ensure it is trimmed and stored as is
+                    rowData[field] = newValue.trim();
                     validEdit = true;
                 } else {
-                    console.warn(`Empty value for dropdown field ${field}`);
+                    // In case of invalid value
+                    console.warn(`Invalid value for ${field}:`, newValue);
                     event.preventDefault();
                 }
                 break;
-     
+
+            case 'dimensions_of_Quality_QoCOfficeReport': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("dimension is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+
+            case 'priority': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("priority is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+                
+            case 'data_collection': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("priority is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+
+            case 'legal_Organizational_Requirements': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("priority is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+                
+            case 'selected_indicator': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("priority is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+            case 'piloting': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("priority is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
+
+            case 'pilot_outcome': 
+                // Handle dropdown fields
+                if (newValue) {
+                    console.log("priority is newvalue:",newValue)
+                    rowData[field] = newValue.value === '' ? ( newValue = '') : newValue; validEdit = true;
+                    
+                } 
+                else {
+                    event.preventDefault();
+                }
+
+                break;
             default:
                 // Handle other fields
                 const trimmedValue = safeTrim(newValue);
@@ -649,6 +673,8 @@ const q4all_Ind_numberItemTemplate = (option) => {
      
         if (validEdit) {
             try {
+                console.log("Data being sent to backend:", rowData);  // Log the data
+
                 // Make the API call to update the backend
                 const response = await axios.patch(`${apiBaseUrl}/indicators/${rowData.id}`, {
                     [field]: newValue,
@@ -666,11 +692,24 @@ const q4all_Ind_numberItemTemplate = (option) => {
         }
     };
 
+
+
     const cellEditor = (options) => {
         if (options.field === 'price') return priceEditor(options);
-        else if (options.field === 'status') return dropdownEditor(options); // Dropdown editor for category
-        else if (options.field === 'type_of_healthcare') return dropdownEditor2(options); // Dropdown editor for domain
-        else if (options.field === 'dimension') return dropdownEditor3(options); // Dropdown editor for domain
+        else if (options.field === 'status') return dropdownEditor(options,statuses); // Dropdown editor for category
+        else if (options.field === 'catergory_of_Indicator') return dropdownEditor(options,category_of_Indicator); //dropdown editor of category of indicator
+        else if (options.field === 'type_of_healthcare') return dropdownEditor(options,domains); // Dropdown editor for domain
+        else if (options.field === 'dimension') return dropdownEditor(options,dimensions); // Dropdown editor for domain
+        else if (options.field === 'cross_Cutting_Dimensions_A_I') return dropdownEditorMulti(options,classification_dimension); 
+        else if (options.field === 'cross_Cutting_Dimensions_Inputs_Process_Outputs') return dropdownEditorMulti(options,cross_Cutting_Dimensions_Inputs_Process_Outputlist)
+        else if (options.field === 'type_of_healthcare_providers_D1_D7') return dropdownEditor(options,type_of_healthcare_providers_D1_D7list);
+        else if (options.field === 'dimensions_of_Quality_QoCOfficeReport') return dropdownEditor(options,QoCOfficeReportlist);
+        else if (options.field ==='priority') return dropdownEditor(options,prioritylist);
+        else if (options.field ==='data_collection') return dropdownEditor(options,data_collection_list);
+        else if (options.field ==='legal_Organizational_Requirements') return dropdownEditor(options,legal_Organizational_Requirements_list)
+        else if (options.field ==='selected_indicator') return dropdownEditor(options,selected_indicator_list)
+        else if (options.field ==='piloting') return dropdownEditor(options,piloting_list)
+        else if (options.field ==='pilot_outcome') return dropdownEditor(options,pilot_outcome_list)
 
         else return textEditor(options);
     };
@@ -686,60 +725,46 @@ const q4all_Ind_numberItemTemplate = (option) => {
         );
     };
 
-    const dropdownEditor = (options) => {
+    const dropdownEditor = (options,list) => {
         return (
             <Dropdown
                 value={options.value}
-                options={statuses} // Use the list of options
+                options={list} // Use the list of options
                 onChange={(e) => options.editorCallback(e.value)}
-                placeholder="Select a status"
-                onKeyDown={(e) => e.stopPropagation()}
-            />
-        );
-    };
-    const statusBodyTemplate = (rowData) => {
-        const status = statuses.find((cat) => cat.value === rowData.status);
-        return status ? status.label : rowData.status; // Display label instead of value
-    };
-
-    const dropdownEditor2 = (options) => {
-        return (
-            <Dropdown
-                value={options.value}
-                options={domains} // Use the list of options
-                onChange={(e) => options.editorCallback(e.value)}
-                placeholder="Select a type of healthcare"
+                placeholder="Select option"
                 onKeyDown={(e) => e.stopPropagation()}
             />
         );
     };
 
-    const dropdownEditor3 = (options) => {
+    const dropdownEditorMulti = (options,list) => {
+        const value = Array.isArray(options.value) ? options.value : (options.value ? options.value.split(', ') : []);
+        console.log("Before update",value)
         return (
-            <Dropdown
-                value={options.value}
-                options={dimensions} // Use the list of options
-                onChange={(e) => options.editorCallback(e.value)}
-                placeholder="Select a dimension"
-                onKeyDown={(e) => e.stopPropagation()}
-            />
+           
+            <MultiSelect
+            value={value} // Parse the saved string to an array
+            options={list}
+            onChange={(e) => {
+                // When selection changes, join the array of values into a string
+                const selectedValues = e.value.join(', ');
+                options.editorCallback(selectedValues); // Update the table data with the string
+            }}            placeholder="Select "
+            display="chip"
+            onKeyDown={(e) => e.stopPropagation()}
+
+        />
+
         );
     };
 
-    const domainBodyTemplate = (rowData) => {
-        const domain = domains.find((cat) => cat.value === rowData.type_of_healthcare);
-        return domain ? domain.label : rowData.type_of_healthcare; // Display label instead of value
+
+    const generalBodyTemplate = (rowData,list,field) => {
+        const field1 = list.find((cat) => cat.value === rowData.field);
+        return field1 ? field1.label : rowData.field; // Display label instead of value
     };
 
-
-    const dimensionBodyTemplate = (rowData) => {
-        const dimension = dimensions.find((cat) => cat.value === rowData.dimension);
-        return dimension ? dimension.label : rowData.dimension; // Display label instead of value
-    };
-
-
-
-    
+   
 
     const addEmptyRow = async () => {
         try {
@@ -757,10 +782,10 @@ const q4all_Ind_numberItemTemplate = (option) => {
                 cross_Cutting_Dimensions_A_I: '',
                 cross_Cutting_Dimensions_Inputs_Process_Outputs: '',
                 dimensions_of_Quality_QoCOfficeReport: '',
-                priority: null,
+                priority: '',
                 data_collection: '',
                 collecting_National_Organization: '',
-                legal_Organizational_Requirements: null,
+                legal_Organizational_Requirements: '',
                 proponent_Organization_WG: '',
                 rationale_Description: '',
                 objective: '',
@@ -808,6 +833,38 @@ const q4all_Ind_numberItemTemplate = (option) => {
     };
     
 
+    const calculateFilledPercentage = (rowData) => {
+        const totalFields = Object.keys(rowData).length; // Total number of fields in the row
+        const filledFields = Object.values(rowData).filter(value => value !== null && value !== '').length; // Count of filled fields
+        return ((filledFields / totalFields) * 100).toFixed(2); // Calculate percentage
+    };
+
+// Template for the percentage column
+const percentageTemplate = (rowData) => {
+    const percentage = calculateFilledPercentage(rowData);
+    
+    // Set color based on percentage
+    let color = 'black'; // Default color
+    if (percentage < 30) {
+        color = 'red'; // Below 30% - Red
+    } 
+    else if (percentage >= 30 && percentage < 60) {
+        color = 'yellow'; // Between 30% and 80% - Yellow
+    }
+    else if (percentage >= 60 && percentage < 90) {
+        color = 'orange'; // Between 30% and 80% - Yellow
+
+    } 
+    else if (percentage >= 90) {
+        color = 'green'; // 100% - Green
+    }
+
+    return (
+        <span style={{ color: color }}>
+            {percentage}%
+        </span>
+    ); // Display percentage with color
+};
 
     return(
         <div className="card" >
@@ -873,108 +930,63 @@ const q4all_Ind_numberItemTemplate = (option) => {
             <Column selectionMode="multiple" headerStyle={{ width: '3em' }} frozen></Column>
 
             <Column className='font-bold' field="id" header="id" sortable style={{ minWidth: '2rem', color: 'black' }} frozen ></Column>
+            <Column
+             className='font-bold'
+                header="Filled Percentage"
+                body={percentageTemplate}
+                style={{ minWidth: '12rem',color: 'black', textAlign: 'center' }} frozen
+            ></Column>
+            <Column field="indicator_name"  header={customHeader(headers.indicator_name.label, headers.indicator_name.description, "indicator_name")}  filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '18rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="q4all_Ind_number" header={customHeader(headers.q4all_Ind_number.label, headers.q4all_Ind_number.description, "q4all_Ind_number")}  filter filterField='q4all_Ind_number' filterElement={q4all_Ind_number_FilterTemplate} showFilterMatchModes={false} body={q4all_Ind_number_BodyTemplate} style={{ minWidth: '21rem' }}></Column>
+            {/* <Column field="status" header={customHeader("Status", "Proposed; Draft; Formally approved; Piloting; Deployed","status")} filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}  body={generalBodyTemplate(indicators,statuses,'status')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column> */}
+            <Column field="status" header={customHeader(headers.status.label, headers.status.description, "status")} filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,statuses,'status')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            {/* <Column field="indicator_cluster" header={customHeader("Indicator Cluster", "Cluster of a set of related indicators that share common aspects (group of indicators of related categories)","indicator_cluster")} filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column> */}
+            <Column field="indicator_cluster" header={customHeader(headers.indicator_cluster.label, headers.indicator_cluster.description, "indicator_cluster")} filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="ind_Merge" header={customHeader(headers.ind_Merge.label, headers.ind_Merge.description, "ind_Merge")}filter filterPlaceholder="Search by Indicator Merge" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="catergory_of_Indicator"  header={customHeader("Category of Indicator","The origin or source of inspiration for the KPI, such as whether it is adapted from another country's indicator, an international standard, or developed internally." ,"catergory_of_Indicator")} filter filterField='catergory_of_Indicator' filterElement={category_of_Indicator_FilterTemplate} showFilterMatchModes={false} body={generalBodyTemplate(indicators,category_of_indicators,'catergory_of_Indicator')} style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}  ></Column>
+            <Column field="dimension"  header={customHeader(headers.dimension.label,headers.dimension.description,"dimension")} filter filterPlaceholder="Search by Dimension" style={{ minWidth: '12rem' }}  body={generalBodyTemplate(indicators,dimensions,'dimension')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="type_of_healthcare" header={customHeader(headers.type_of_healthcare.label,headers.type_of_healthcare.description,"type_of_healthcare")} filter filterField = 'type_of_healthcare' filterElement={type_Of_HealthCare_FilterTemplate} showFilterMatchModes={false} style={{ minWidth: '10rem' }} body={generalBodyTemplate(indicators,domains,'type_of_healthcare')}  editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="type_of_healthcare_providers_D1_D7" header={customHeader(headers.type_of_healthcare_providers_D1_D7.label,headers.type_of_healthcare_providers_D1_D7.description  ,"type_of_healthcare_providers_D1_D7")} filter filterPlaceholder="Search by Healthcare Providers" style={{ minWidth: '12rem' }}  body={generalBodyTemplate(indicators,type_of_healthcare_providers_D1_D7list,'type_of_healthcare_providers_D1_D7')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}  ></Column>
+            <Column field="cross_Cutting_Dimensions_A_I"  header={customHeader(headers.cross_Cutting_Dimensions_A_I.label,headers.cross_Cutting_Dimensions_A_I.description,"cross_Cutting_Dimensions_A_I")} filter filterPlaceholder="Search by Cross Cutting Dimensions A-I" style={{ minWidth: '12rem' }}  body={generalBodyTemplate(indicators,classification_dimension,'cross_Cutting_Dimensions_A_I')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="cross_Cutting_Dimensions_Inputs_Process_Outputs" header={customHeader(headers.cross_Cutting_Dimensions_Inputs_Process_Outputs.label,headers.cross_Cutting_Dimensions_Inputs_Process_Outputs.description,"cross_Cutting_Dimensions_Inputs_Process_Outputs")} filter filterPlaceholder="Search by Inputs/Outputs" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,cross_Cutting_Dimensions_Inputs_Process_Outputlist,'cross_Cutting_Dimensions_Inputs_Process_Outputs')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="dimensions_of_Quality_QoCOfficeReport" header={customHeader(headers.dimensions_of_Quality_QoCOfficeReport.label,headers.dimensions_of_Quality_QoCOfficeReport.description ,"dimensions_of_Quality_QoCOfficeReport")} filter filterPlaceholder="Search by Dimensions of Quality" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,QoCOfficeReportlist,'dimensions_of_Quality_QoCOfficeReport')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}   ></Column>
+            <Column field="priority"  header={customHeader(headers.priority.label,headers.priority.description,"priority")} filter filterPlaceholder="Search by Priority" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,prioritylist,'priority')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}   ></Column>
+            <Column field="data_collection" header={customHeader(headers.data_collection.label,headers.data_collection.description ,"data_collection")} filter filterPlaceholder="Search by Data Collection" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,data_collection_list,'data_collection')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="collecting_National_Organization" header={customHeader(headers.collecting_National_Organization.label,headers.collecting_National_Organization.description ,"collecting_National_Organization")} filter filterPlaceholder="Search by Collecting Organization" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="legal_Organizational_Requirements"  header={customHeader(headers.legal_Organizational_Requirements.label,headers.legal_Organizational_Requirements.description ,"legal_Organizational_Requirements")} filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,legal_Organizational_Requirements_list,'legal_Organizational_Requirements')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}  ></Column>
+            <Column field="proponent_Organization_WG" header={customHeader(headers.proponent_Organization_WG.label,headers.proponent_Organization_WG.description,"proponent_Organization_WG")} filter filterPlaceholder="Search by Proponent Organization" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="rationale_Description"  header={customHeader(headers.rationale_Description.label,headers.rationale_Description.description ,"rationale_Description")} filter filterPlaceholder="Search by Rationale Description" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="objective"  header={customHeader(headers.objective.label,headers.objective.description ,"objective")}  filter filterPlaceholder="Search by Objective" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="calculation_Formula"   header={customHeader(headers.calculation_Formula.label,headers.calculation_Formula.description ,"calculation_Formula")}   filter filterPlaceholder="Search by Calculation Formula" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="numerator"  header={customHeader(headers.numerator.label,headers.numerator.description,"numerator")}  filter filterPlaceholder="Search by Numerator" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="numerator_Definitions"   header={customHeader(headers.numerator_Definitions.label,headers.numerator_Definitions.description ,"numerator_Definitions")}  filter filterPlaceholder="Search by Numerator Definitions" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="denominator"  header={customHeader(headers.denominator.label,headers.denominator.description,"denominator")}  filter filterPlaceholder="Search by Denominator" style={{ minWidth: '12rem' }}  editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="denominator_Definitions" header={customHeader(headers.denominator_Definitions.label,headers.denominator_Definitions.description ,"denominator_Definitions")}   filter filterPlaceholder="Search by Denominator Definitions" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="target_Population"  header={customHeader(headers.target_Population.label,headers.target_Population.description ,"target_Population")} filter filterPlaceholder="Search by Target Population" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="field_Topic" header={customHeader(headers.field_Topic.label,headers.field_Topic.description ,"field_Topic")} filter filterPlaceholder="Search by Field Topic" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="extraCol2" header={customHeader(headers.extraCol2.label,headers.extraCol2.description ,"extraCol2")} filter filterPlaceholder="Search by Extra Column 2" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="periodicity"  header={customHeader(headers.periodicity.label,headers.periodicity.description ,"periodicity")} filter filterPlaceholder="Search by Periodicity" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="data_Collection_Steps"  header={customHeader(headers.data_Collection_Steps.label ,headers.data_Collection_Steps.description,"data_Collection_Steps")} filter filterPlaceholder="Search by Data Collection Steps" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="legal_Requirements" header={customHeader(headers.legal_Requirements.label ,headers.legal_Requirements.description,"legal_Requirements")} filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="responsible_for_Monitoring" header={customHeader(headers.responsible_for_Monitoring.label,headers.responsible_for_Monitoring.description  ,"responsible_for_Monitoring")} filter filterPlaceholder="Search by Responsible for Monitoring" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
 
-            <Column field="indicator_name"  header={customHeader("Indicator Name", "The specific name used to identify the Key Performance Indicator (KPI).","indicator_name")} filter filterPlaceholder="Search by Indicator Name" style={{ minWidth: '18rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="q4all_Ind_number" header={customHeader("Q4All Indicator Number", "This will be a internal Number for indicators of 'Q4ALL Q4Alln.xxxx' with 4 digitis","q4all_Ind_number")} filter filterField='q4all_Ind_number' filterElement={q4all_Ind_number_FilterTemplate} showFilterMatchModes={false} body={q4all_Ind_number_BodyTemplate} style={{ minWidth: '21rem' }}></Column>
-            <Column field="status" header={customHeader("Status", "Proposed; Draft; Formally approved; Piloting; Deployed","status")} filter filterPlaceholder="Search by Status" style={{ minWidth: '12rem' }}  body={statusBodyTemplate} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="indicator_cluster" header={customHeader("Indicator Cluster", "Cluster of a set of related indicators that share common aspects (group of indicators of related categories)","indicator_cluster")} filter filterPlaceholder="Search by Indicator Cluster" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
-            <Column field="ind_Merge" header={customHeader("Indicator Merge",`If 2 indicadors are "merged" the one with the lowest number remains and th other ir "inactive";  e.g.  Q4Alln.000x   + Q4Alln.00xy --> Q4Alln.000x  - text is adjusted and the "inactivated indicator line of cells is colored light grey` ,"ind_Merge")}filter filterPlaceholder="Search by Indicator Merge" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="catergory_of_Indicator"  header={customHeader("Category of Indicator","The origin or source of inspiration for the KPI, such as whether it is adapted from another country's indicator, an international standard, or developed internally." ,"catergory_of_Indicator")} filter filterField='catergory_of_Indicator' filterElement={category_of_Indicator_FilterTemplate} showFilterMatchModes={false} body={category_of_Indicator_BodyTemplate} style={{ minWidth: '12rem' }}></Column>
-            <Column field="dimension"  header={customHeader("Dimension","The aspect of healthcare quality the indicator measures, e.g., safety, effectiveness,  etc." ,"dimension")} filter filterPlaceholder="Search by Dimension" style={{ minWidth: '12rem' }}  body={dimensionBodyTemplate} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
-            <Column field="type_of_healthcare" header={customHeader("Type of Healthcare", `D1: Secundary Healthcare ( all hospitals, secundary and tertiary hospitals, hospital at home, telehealth services, data from wearables)
-D2: Home/telecare and Ative life (hospital at home, telehealth services, data from wearables, health at home social service)
-D3: Primary Care (342 health centers; 127 TOMY local health units; 110 COMY mobile health units; Outpatient prescription)
-D4: Public health indicators (EODY-national center of public health; with-- ODIPY - hospital infections; IDIKA (HIV registy and COVID19 )
-D5: NCDs and Mental Health (diganosis of NCDs in drug prescrition; healthstat, perceptions, service use, drugs use, mental health clinics of univ hosp, and 3 phychiatry hospitals), day care centers for mental health units?
-D6: Paliative and Long term care
-D7: All domains`,"type_of_healthcare")} filter filterField = 'type_of_healthcare' filterElement={type_Of_HealthCare_FilterTemplate} showFilterMatchModes={false} style={{ minWidth: '10rem' }} body={domainBodyTemplate}  editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            
-            <Column field="type_of_healthcare_providers_D1_D7" header={customHeader("Type of Healthcare Providers", `D1: Secundary Healthcare ( all hospitals, secundary and tertiary hospitals, hospital at home, telehealth services, data from wearables)
-D2: Home/telecare and Ative life (hospital at home, telehealth services, data from wearables, health at home social service)
-D3: Primary Care (342 health centers; 127 TOMY local health units; 110 COMY mobile health units; Outpatient prescription)
-D4: Public health indicators (EODY-national center of public health; with-- ODIPY - hospital infections; IDIKA (HIV registy and COVID19 )
-D5: NCDs and Mental Health (diganosis of NCDs in drug prescrition; healthstat, perceptions, service use, drugs use, mental health clinics of univ hosp, and 3 phychiatry hospitals), day care centers for mental health units?
-D6: Paliative and Long term care
-D7: All domains` ,"type_of_healthcare_providers_D1_D7")} filter filterPlaceholder="Search by Healthcare Providers" style={{ minWidth: '12rem' }}></Column>
-            
-            <Column field="cross_Cutting_Dimensions_A_I"  header={customHeader("Cross Cutting Dimensions A-I",`Classification according to Dimensions: 
-A_Inputs_Workforce (Quantity/Training; capacity building)
-B_Inputs_Social determinants of health and care
-C_Process_Equity (gender balance, minorities, migrants)
-D_Process_Access
-H_Process_Patient Experience
-E_Process_Cost containing and efficiency
-F_Process_Green and sustainability
-G_Process_Digital and healthcare transformation
-H_Outputs_Patient Satisfaction
-I_Outputs Health Gains` ,"cross_Cutting_Dimensions_A_I")} filter filterPlaceholder="Search by Cross Cutting Dimensions A-I" style={{ minWidth: '12rem' }}></Column>
-            
-            <Column field="cross_Cutting_Dimensions_Inputs_Process_Outputs" header={customHeader("Cross Cutting Dimensions Inputs/Outputs","Classification according to: Inputs; Process; Outputs" ,"cross_Cutting_Dimensions_Inputs_Process_Outputs")}
- filter filterPlaceholder="Search by Inputs/Outputs" style={{ minWidth: '12rem' }}></Column>
-
-            <Column field="dimensions_of_Quality_QoCOfficeReport" header={customHeader("Dimensions of Quality",`Classification according to QoCOfficeReport:
-Efficiency
-Access
-Equity
-User experience 
-Effectiveness 
-Safety` ,"dimensions_of_Quality_QoCOfficeReport")} filter filterPlaceholder="Search by Dimensions of Quality" style={{ minWidth: '12rem' }}></Column>
-            <Column field="priority"  header={customHeader("Priority",`Classification regarding Priority taking into account AIM of Q4All platforma and HealthIQ project overal:
- 1- 1st priority (very useful and somehow tangible);
- 2 - 2nd priority (useful and with some dificulties); 
- 3 3rd priority  (interesting but very dificult) ==== target for "proposed indicators" 180 of cat 1; 100 cat 2 ; 20 cat 3;` ,"priority")} filter filterPlaceholder="Search by Priority" style={{ minWidth: '12rem' }}></Column>
-            <Column field="data_collection" header={customHeader("Data Collection",`AUTOMATED (Pre-existing data Source/System): There is a pre-existing data source that could totally or partially cover data needed to use this indicator in the Greek context
-MANUAL: Data needs to be collected manually, and retrived by an existing system (e.g. MoH BI, other) or NEW System
-AUTOMATED NEW / INNOVATIVE: Data needs to be collected in an innovative manner (e.g. collecting "nº steps" from each greek person via connecting their phones' pedometer to a system that collects that for a large sample in real time` ,"data_collection")} filter filterPlaceholder="Search by Data Collection" style={{ minWidth: '12rem' }}></Column>
-            <Column field="collecting_National_Organization" header={customHeader("Collecting Organization","Name (ideally also system) of the National Level Organization that collects data related to the proposed indicator" ,"collecting_National_Organization")} filter filterPlaceholder="Search by Collecting Organization" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
-            <Column field="legal_Organizational_Requirements"  header={customHeader("Legal Requirements",`1 - No need
-2 - Legal base exist but needs to be "operationalized" via a guideline/regulation by ODYPI/Other org
-3 - New Legal base is needed (MoH order)
-4 - New Legal base is needed (Law)` ,"legal_Organizational_Requirements")} filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }}></Column>
-            <Column field="proponent_Organization_WG" header={customHeader("Proponent Organization","Organization or team that proposed or supports the use of this indicator.","proponent_Organization_WG")} filter filterPlaceholder="Search by Proponent Organization" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
-            <Column field="rationale_Description"  header={customHeader("Rationale Description","Can be created from formula…" ,"rationale_Description")} filter filterPlaceholder="Search by Rationale Description" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
-            <Column field="objective"  header={customHeader("Objective","The specific goal this indicator aims to achieve in terms of healthcare outcomes or performance improvement." ,"objective")}  filter filterPlaceholder="Search by Objective" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="calculation_Formula"   header={customHeader("Calculation Formula","The mathematical equation or method used to compute the indicator’s value." ,"calculation_Formula")}   filter filterPlaceholder="Search by Calculation Formula" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="numerator"  header={customHeader("Numerator","The top part of the calculation." ,"numerator")}  filter filterPlaceholder="Search by Numerator" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="numerator_Definitions"   header={customHeader("Numerator Definitions","Detailed explanation of what is counted in the numerator and how it is measured." ,"numerator_Definitions")}  filter filterPlaceholder="Search by Numerator Definitions" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="denominator"  header={customHeader("Denominator","The bottom part of the calculation." ,"denominator")}  filter filterPlaceholder="Search by Denominator" style={{ minWidth: '12rem' }}  editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="denominator_Definitions" header={customHeader("Denominator Definitions","Detailed explanation of what is included in the denominator and how it is measured." ,"denominator_Definitions")}   filter filterPlaceholder="Search by Denominator Definitions" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="target_Population"  header={customHeader("Target Population","The group of patients or institutions to which the indicator applies." ,"target_Population")} filter filterPlaceholder="Search by Target Population" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="field_Topic" header="Field Topic" filter filterPlaceholder="Search by Field Topic" style={{ minWidth: '12rem' }}></Column>
-            <Column field="extraCol2" header="Extra Column 2" filter filterPlaceholder="Search by Extra Column 2" style={{ minWidth: '12rem' }}></Column>
-            <Column field="periodicity"  header={customHeader("Periodicity","How often the data for this indicator is collected, e.g., weekly, monthly, quarterly, annually , etc." ,"periodicity")} filter filterPlaceholder="Search by Periodicity" style={{ minWidth: '12rem' }} ></Column>
-            <Column field="data_Collection_Steps"  header={customHeader("Data Collection Steps","The specific procedures and actions required to gather data for this indicator." ,"data_Collection_Steps")} filter filterPlaceholder="Search by Data Collection Steps" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="legal_Requirements" header={customHeader("Legal Requirements","Any laws, regulations, or standards that mandate the use or reporting of this indicator." ,"legal_Requirements")} filter filterPlaceholder="Search by Legal Requirements" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="responsible_for_Monitoring" header={customHeader("Responsible for Monitoring","Organization, department, or team accountable for tracking and evaluating this indicator. (In the field)" ,"responsible_for_Monitoring")} filter filterPlaceholder="Search by Responsible for Monitoring" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-
-
-
-
-            <Column field="deadline_Reporting" header={customHeader("Deadline Reporting","The time frame or specific date by which the data for this indicator must be reported." ,"deadline_Reporting")}  filter filterPlaceholder="Search by Deadline Reporting" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="supervisor_Body" header={customHeader("Supervisor Body","The external entity responsible for overseeing the monitoring of the indicator." ,"supervisor_Body")} filter filterPlaceholder="Search by Supervisor Body" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="management_Entity" header={customHeader("Management Entity","The organization in charge of managing the indicator and ensuring it meets its objectives." ,"management_Entity")} filter filterPlaceholder="Search by Management Entity" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="applicable_period" header={customHeader("Applicable Period","The time range during which this indicator is relevant or active for measurement and reporting." ,"applicable_period")} filter filterPlaceholder="Search by Applicable Period" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="unit_of_Measurement" header={customHeader("Unit of Measurement","The metric or unit used to express the value of the indicator (e.g., percentage, number of events)." ,"data_Source_Monitoring_Basis")} filter filterPlaceholder="Search by Unit of Measurement" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
-            <Column field="data_Source_Monitoring_Basis" header={customHeader("Data Source Monitoring","The origin of the data used to calculate the indicator, such as patient records, surveys, or administrative data." ,"data_Source_Monitoring_Basis")} filter filterPlaceholder="Search by Data Source Monitoring" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="it_System_Source" header="IT System Source" filter filterPlaceholder="Search by IT System Source" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="reference_Value_Target" header={customHeader("Reference Value Target","The desired or expected value of the indicator, often set as a target for performance improvement." ,"reference_Value_Target")} filter filterPlaceholder="Search by Reference Value Target" style={{ minWidth: '12rem' }}></Column>
-            <Column field="base_Value" header={customHeader("Base Value","The initial value of the indicator before any improvement initiatives, used as a comparison point." ,"base_Value")} filter filterPlaceholder="Search by Base Value" style={{ minWidth: '12rem' }}></Column>
-            <Column field="notes" header={customHeader("Notes","Additional information or clarifications related to the indicator." ,"notes")} filter filterPlaceholder="Search by Notes" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="sources_and_Further_Reading" header={customHeader("Sources and Further Reading","References to documents, studies, or websites that provide more information about the indicator." ,"sources_and_Further_Reading")} filter filterPlaceholder="Search by Sources and Further Reading" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="selected_indicator" header={customHeader("Selected Indicator",`
-YES - the Potential Indicator is considered useful, feasible, and can be adjusted to the Greek context;
-NO - the Potential Indicator does not seem relevant for Q4All now or in the near (2y) future;
-MAYBE - the Potential Indicator can be useful IF a certain set of conditions (e.g. data collection, legal basis, etc ) are changed` ,"selected_indicator")} filter filterPlaceholder="Search by Selected Indicator" style={{ minWidth: '12rem' }}></Column>
-            <Column field="adaptation_Needs" header={customHeader("Adaptation Needs","brief description of the NEEDS to adapt the suugested indicator to the Greek Context and Q4ALL/healthIQ aims" ,"adaptation_Needs")} filter filterPlaceholder="Search by Adaptation Needs" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="piloting" header={customHeader("Piloting",`
-YES - This "SELECTED INDICATOR" as is to be included in the Pilot;
-NO - this "SELECTED INDICATOR" is NOT to be included in the Pilot;
-N/A - this "SELECTED INDICATOR" is to be used but does not need to be included in the pilot` ,"piloting")} filter filterPlaceholder="Search by Piloting" style={{ minWidth: '12rem' }}></Column>
-            <Column field="opinion_from_ODIPY_Other_experts" header={customHeader("Expert Opinion","Opinion from ODIPY, and any other experts, including the endorsement/refusal from HealthIQ mission experts" ,"opinion_from_ODIPY_Other_experts")} filter filterPlaceholder="Search by Expert Opinion" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
-            <Column field="pilot_outcome" header={customHeader("Pilot Outcome",`1 - MAINTAIN AS IS;
-2- MAINTAIN but adjust - (add coluns to the right with changes) ;
-3 - SUSPEND` ,"pilot_outcome")} filter filterPlaceholder="Search by Pilot Outcome" style={{ minWidth: '12rem' }}></Column>
-            <Column field="pilot_success_criteria" header={customHeader("Pilot Success Criteria","TBD at a later stage - ideas can be listed in cells below" ,"pilot_success_criteria")} filter filterPlaceholder="Search by Success Criteria" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="deadline_Reporting"  header={customHeader(headers.deadline_Reporting.label, headers.deadline_Reporting.description, "deadline_Reporting")} filter filterPlaceholder="Search by Deadline Reporting" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="supervisor_Body"     header={customHeader(headers.supervisor_Body.label, headers.supervisor_Body.description, "supervisor_Body")} filter filterPlaceholder="Search by Supervisor Body" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="management_Entity"   header={customHeader(headers.management_Entity.label, headers.management_Entity.description, "management_Entity")} filter filterPlaceholder="Search by Management Entity" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="applicable_period"   header={customHeader(headers.applicable_period.label, headers.applicable_period.description, "applicable_period")} filter filterPlaceholder="Search by Applicable Period" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="unit_of_Measurement" header={customHeader(headers.unit_of_Measurement.label, headers.unit_of_Measurement.description, "unit_of_Measurement")} filter filterPlaceholder="Search by Unit of Measurement" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="data_Source_Monitoring_Basis"     header={customHeader(headers.data_Source_Monitoring_Basis.label, headers.data_Source_Monitoring_Basis.description, "data_Source_Monitoring_Basis")} filter filterPlaceholder="Search by Data Source Monitoring" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="it_System_Source"     header={customHeader(headers.it_System_Source.label, headers.it_System_Source.description, "it_System_Source")}  filter filterPlaceholder="Search by IT System Source" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="reference_Value_Target" header={customHeader(headers.reference_Value_Target.label, headers.reference_Value_Target.description, "reference_Value_Target")}  filter filterPlaceholder="Search by Reference Value Target" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="base_Value"    header={customHeader(headers.base_Value.label, headers.base_Value.description, "base_Value")} filter filterPlaceholder="Search by Base Value" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="notes"     header={customHeader(headers.notes.label, headers.notes.description, "notes")} filter filterPlaceholder="Search by Notes" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="sources_and_Further_Reading"     header={customHeader(headers.sources_and_Further_Reading.label, headers.sources_and_Further_Reading.description, "sources_and_Further_Reading")} filter filterPlaceholder="Search by Sources and Further Reading" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="selected_indicator"  header={customHeader(headers.selected_indicator.label, headers.selected_indicator.description, "selected_indicator")} filter filterPlaceholder="Search by Selected Indicator" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,selected_indicator_list,'selected_indicator')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}  ></Column>  
+            <Column field="adaptation_Needs"  header={customHeader(headers.adaptation_Needs.label, headers.adaptation_Needs.description, "adaptation_Needs")}  filter filterPlaceholder="Search by Adaptation Needs" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="piloting"     header={customHeader(headers.piloting.label, headers.piloting.description, "piloting")} filter filterPlaceholder="Search by Piloting" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,piloting_list,'piloting')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} ></Column>
+            <Column field="opinion_from_ODIPY_Other_experts" header={customHeader(headers.opinion_from_ODIPY_Other_experts.label, headers.opinion_from_ODIPY_Other_experts.description, "opinion_from_ODIPY_Other_experts")} filter filterPlaceholder="Search by Expert Opinion" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="pilot_outcome"   header={customHeader(headers.pilot_outcome.label, headers.pilot_outcome.description, "pilot_outcome")} filter filterPlaceholder="Search by Pilot Outcome" style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,pilot_outcome_list,'pilot_outcome')} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+            <Column field="pilot_success_criteria"     header={customHeader(headers.pilot_success_criteria.label, headers.pilot_success_criteria.description, "pilot_success_criteria")} filter filterPlaceholder="Search by Success Criteria" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
             
             <Column header="Ενέργειες" field="id" body={ActionsBodyTemplate} alignFrozen="right" frozen headerStyle={{ backgroundImage: 'linear-gradient(to right, #1400B9, #00B4D8)', color: '#ffffff' }}/>
 
