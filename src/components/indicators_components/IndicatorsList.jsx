@@ -232,8 +232,20 @@ const IndicatorsList = () => {
             const unique_d1_d7 = [...new Set(indData.map(item => item.type_of_healthcare_providers_D1_D7 || ''))]
             setType_Of_Healthcare_D1_D7(unique_d1_d7)
 
-            const unique_cross_Cutting_Dimensions_A_I = [...new Set(indData.map(item => item.cross_Cutting_Dimensions_A_I || ''))]
-            setCross_Cutting_Dimensions_A_I(unique_cross_Cutting_Dimensions_A_I)
+            // const unique_cross_Cutting_Dimensions_A_I = [...new Set(indData.map(item => item.cross_Cutting_Dimensions_A_I || ''))]
+            // console.log("cross list ai",unique_cross_Cutting_Dimensions_A_I)
+            // setCross_Cutting_Dimensions_A_I(unique_cross_Cutting_Dimensions_A_I)
+
+            const unique_cross_Cutting_Dimensions_A_I = [
+                ...new Set(
+                    indData
+                        .map(item => item.cross_Cutting_Dimensions_A_I || '') // Extract values
+                        .flatMap(value => value.split(',').map(v => v.trim())) // Split by comma and trim spaces
+                )
+            ];
+            console.log("cross list ai", unique_cross_Cutting_Dimensions_A_I);
+            // Optionally, set the state with the unique values
+            setCross_Cutting_Dimensions_A_I(unique_cross_Cutting_Dimensions_A_I);
 
             const unique_Cross_Cutting_Dimensions_Inputs_Outputs = [...new Set(indData.map(item => item.cross_Cutting_Dimensions_Inputs_Process_Outputs	|| ''))]
             setCross_Cutting_Dimensions_Inputs_Outputs(unique_Cross_Cutting_Dimensions_Inputs_Outputs)
@@ -925,7 +937,7 @@ const percentageTemplate = (rowData) => {
     //         return filter.some((f) => valueArray.includes(f)); // Check if any filter value matches
         
     // });
-
+    /////CUSTOM FILTER FOR custom_cross_Cutting_Dimensions_A_I
     FilterService.register('custom_cross_Cutting_Dimensions_A_I', (value, filter) => {
         // If no filter is applied (filter is null, undefined, or an empty array), show all rows
         if (!filter || filter.length === 0) {
