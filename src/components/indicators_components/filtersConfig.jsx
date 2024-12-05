@@ -1,6 +1,14 @@
 
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
+ // Custom Filter Function
+ const customFilterFunction = (value, filter) => {
+    if (!filter || filter.length === 0) {
+        return true; // No filter applied, show all
+    }
+    const valueArray = value.split(','); // Split the cell value into an array
+    return filter.some((f) => valueArray.includes(f)); // Check if any filter value matches
+};
 
 export const initFiltersConfig = () => ({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -14,7 +22,7 @@ export const initFiltersConfig = () => ({
     dimension: { value: null, matchMode: FilterMatchMode.IN },
     type_of_healthcare: { value: null, matchMode: FilterMatchMode.IN },
     type_of_healthcare_providers_D1_D7: { value: null, matchMode: FilterMatchMode.IN },
-    cross_Cutting_Dimensions_A_I: { value: null, matchMode: FilterMatchMode.IN },
+    cross_Cutting_Dimensions_A_I: { value: null, matchMode: FilterMatchMode.CONTAINS },
     cross_Cutting_Dimensions_Inputs_Process_Outputs: { value: null, matchMode: FilterMatchMode.IN },
     dimensions_of_Quality_QoCOfficeReport: { value: null, matchMode: FilterMatchMode.IN },
     priority: { value: null, matchMode: FilterMatchMode.IN },
@@ -54,3 +62,5 @@ export const initFiltersConfig = () => ({
     pilot_outcome: { value: null, matchMode: FilterMatchMode.IN },
     pilot_success_criteria: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
 });
+
+  

@@ -867,7 +867,7 @@ const q4all_Ind_number_BodyTemplate = (rowData) => {
             setIndicators((prevIndicators) => [...prevIndicators, newRow]); // Add to the current list of indicators
             setFilteredIndicators((prevIndicators) => [...prevIndicators, newRow])
             setRowsAffected(indicators.length)
-    
+            window.location.reload();
         } catch (error) {
             console.error('Error adding new row:', error);
         }
