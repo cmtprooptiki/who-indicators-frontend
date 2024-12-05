@@ -82,6 +82,7 @@ const IndicatorsList = () => {
     const [selectedType, setSelectedType] = useState(null);
 
     const [selectedIndicator, setSelectedIndicator] = useState([]);
+    console.log("first indicator,",selectedIndicator)
 
     const [statusValue, setStatusValue] = useState([])
 
@@ -250,7 +251,10 @@ const IndicatorsList = () => {
             setLegal_Organizational_Requirements(unique_legal_organization_requirement)
 
             const unique_Selected_Indicator = [...new Set(indData.map(item => item.selected_indicator || ''))]
-            setSelectedIndicator(unique_Selected_Indicator)
+            if(unique_Selected_Indicator!=''){
+                setSelectedIndicator(unique_Selected_Indicator)
+            }
+            
 
             const unique_piloting = [...new Set(indData.map(item => item.piloting || ''))]
             setPiloting(unique_piloting)
@@ -927,6 +931,8 @@ const percentageTemplate = (rowData) => {
             )}
 
      {selectedIndicator.length > 0 && (
+      
+            
             <Button
                 className='button is-primary mb-2 rounded' 
                 label="Delete Selected" 
@@ -935,7 +941,7 @@ const percentageTemplate = (rowData) => {
                 style = {{marginLeft: "50px"}} 
                 onClick={() => deleteIndicatorsSelected(selectedIndicator.map(indicator => indicator.id))} // Pass an array of selected IDs
             />
-
+      
             
         )} 
         
