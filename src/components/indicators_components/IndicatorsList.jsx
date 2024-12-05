@@ -10,7 +10,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
+import { FilterMatchMode, FilterOperator, FilterService } from 'primereact/api';
 import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
@@ -908,6 +908,37 @@ const percentageTemplate = (rowData) => {
 };
 
     console.log("Menei: ", category_of_Indicator)
+    
+    // The rule argument should be a string in the format "custom_[field]".
+    // FilterService.register('custom_cross_Cutting_Dimensions_A_I', (value, filter) => {
+    //     // const [from, to] = filters ?? [null, null];
+    //     // if (from === null && to === null) return true;
+    //     // if (from !== null && to === null) return from <= value;
+    //     // if (from === null && to !== null) return value <= to;
+    //     // return from <= value && value <= to;
+
+        
+    //         if (!filter || filter.length === 0) {
+    //             return true; // No filter applied, show all
+    //         }
+    //         const valueArray = value.split(','); // Split the cell value into an array
+    //         return filter.some((f) => valueArray.includes(f)); // Check if any filter value matches
+        
+    // });
+
+    FilterService.register('custom_cross_Cutting_Dimensions_A_I', (value, filter) => {
+        if (!filter || filter.length === 0) {
+            return true; // No filter applied, show all
+        }
+    
+        // Ensure value is not null or undefined before splitting
+        if (!value) {
+            return false; // If value is null or undefined, don't show this row
+        }
+    
+        const valueArray = value.split(',').map((v) => v.trim()); // Split and trim any extra spaces
+        return filter.some((f) => valueArray.includes(f.trim())); // Check if any filter value matches
+    });
 
     
 
@@ -950,6 +981,7 @@ const percentageTemplate = (rowData) => {
         </div>
 
         {  console.log("statusessssssss : ",piloting)}
+
 
 <DataTable value={indicators}  editMode="cell" ref = {dt} onValueChange={(Updatedindicators) => {setFilteredIndicators(Updatedindicators);  console.log(filteredIndicators.length, "Toso mikos"); setRowsAffected(Updatedindicators.length)}} paginator stripedRows
  rows={25} scrollable scrollHeight="600px" loading={loading} dataKey="id" 
