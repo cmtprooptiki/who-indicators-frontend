@@ -927,18 +927,22 @@ const percentageTemplate = (rowData) => {
     // });
 
     FilterService.register('custom_cross_Cutting_Dimensions_A_I', (value, filter) => {
+        // If no filter is applied (filter is null, undefined, or an empty array), show all rows
         if (!filter || filter.length === 0) {
-            return true; // No filter applied, show all
+            return true; // Show all rows when no filter is set
         }
     
-        // Ensure value is not null or undefined before splitting
+        // If the value is null, undefined, or an empty string, check if empty value is selected in the filter
         if (!value) {
-            return false; // If value is null or undefined, don't show this row
+            // If filter contains an empty string or null, allow the row to be displayed
+            return filter.includes('') || filter.includes(null);
         }
     
+        // Otherwise, split and trim the value to compare with the filter
         const valueArray = value.split(',').map((v) => v.trim()); // Split and trim any extra spaces
-        return filter.some((f) => valueArray.includes(f.trim())); // Check if any filter value matches
+        return filter.some((f) => valueArray.includes(f.trim()) || (f === '' && valueArray.length === 0)); // Check if any filter value matches
     });
+    
 
     
 
