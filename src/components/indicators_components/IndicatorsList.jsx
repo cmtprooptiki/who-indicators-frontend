@@ -247,8 +247,19 @@ const IndicatorsList = () => {
             // Optionally, set the state with the unique values
             setCross_Cutting_Dimensions_A_I(unique_cross_Cutting_Dimensions_A_I);
 
-            const unique_Cross_Cutting_Dimensions_Inputs_Outputs = [...new Set(indData.map(item => item.cross_Cutting_Dimensions_Inputs_Process_Outputs	|| ''))]
-            setCross_Cutting_Dimensions_Inputs_Outputs(unique_Cross_Cutting_Dimensions_Inputs_Outputs)
+            // const unique_Cross_Cutting_Dimensions_Inputs_Outputs = [...new Set(indData.map(item => item.cross_Cutting_Dimensions_Inputs_Process_Outputs	|| ''))]
+            // setCross_Cutting_Dimensions_Inputs_Outputs(unique_Cross_Cutting_Dimensions_Inputs_Outputs)
+
+            const unique_Cross_Cutting_Dimensions_Inputs_Outputs = [
+                ...new Set(
+                    indData
+                        .map(item => item.cross_Cutting_Dimensions_Inputs_Process_Outputs || '') // Extract values
+                        .flatMap(value => value.split(',').map(v => v.trim())) // Split by comma and trim spaces
+                )
+            ];
+            console.log("cross list ai", unique_Cross_Cutting_Dimensions_Inputs_Outputs);
+            // Optionally, set the state with the unique values
+            setCross_Cutting_Dimensions_Inputs_Outputs(unique_Cross_Cutting_Dimensions_Inputs_Outputs);
 
             const unique_dimensions_of_quality = [...new Set(indData.map(item => item.dimensions_of_Quality_QoCOfficeReport	|| ''))]
             setDimensions_Of_Quality(unique_dimensions_of_quality)
@@ -943,7 +954,23 @@ const percentageTemplate = (rowData) => {
         if (!filter || filter.length === 0) {
             return true; // Show all rows when no filter is set
         }
+        
+        // If the value is null, undefined, or an empty string, check if empty value is selected in the filter
+        if (!value) {
+            // If filter contains an empty string or null, allow the row to be displayed
+            return filter.includes('') || filter.includes(null);
+        }
     
+        // Otherwise, split and trim the value to compare with the filter
+        const valueArray = value.split(',').map((v) => v.trim()); // Split and trim any extra spaces
+        return filter.some((f) => valueArray.includes(f.trim()) || (f === '' && valueArray.length === 0)); // Check if any filter value matches
+    });
+    FilterService.register('custom_cross_Cutting_Dimensions_Inputs_Process_Outputs', (value, filter) => {
+        // If no filter is applied (filter is null, undefined, or an empty array), show all rows
+        if (!filter || filter.length === 0) {
+            return true; // Show all rows when no filter is set
+        }
+        
         // If the value is null, undefined, or an empty string, check if empty value is selected in the filter
         if (!value) {
             // If filter contains an empty string or null, allow the row to be displayed
