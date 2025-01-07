@@ -19,6 +19,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
 // import { Dialog } from 'primereact/dialog'; // Import Dialog
+import { Card } from "primereact/card";
 
 import { OverlayPanel } from 'primereact/overlaypanel';
 // import indicatorsData from '../../data/indicators.json'; // Adjust the path based on file location
@@ -42,7 +43,12 @@ import {
 import { headers } from './headersConfig';  // Import the header configuration
 import { initFiltersConfig } from './filtersConfig';
 import FilterIndicators from './FilterIndicators';
+import "./datatable-custom.css"; // Your custom styles
+import TotalIndicators from '../../icons/Total indicators.svg'
+import indicatortwo from '../../icons/Group 301.svg'
+import indicatorthree from '../../icons/Group 302.svg'
 
+// import {ReactCompononent as TotalIcon} from '../../icons/totalindicators.svg' 
 
 const IndicatorsList = () => {
     const [indicators, setIndicators] = useState([]);
@@ -85,6 +91,9 @@ const IndicatorsList = () => {
     console.log("first indicator,",selectedIndicator)
 
     const [statusValue, setStatusValue] = useState([])
+
+    const [filledRows,setfilledRows]=useState(0)
+    const [checkEdit,setCheckEdit]=useState(false)
 
   
     const {user} = useSelector((state)=>state.auth)
@@ -129,6 +138,11 @@ const IndicatorsList = () => {
         setRowsAffected(indicators.length)
         initFilters();
     },[user]);
+    useEffect(()=>{
+        setfilledRows(indicators.filter(checkRow))
+
+    },[filteredIndicators])
+
     
     //get data for specific userid
     const getIndicatorsByUser= async() =>{
@@ -202,6 +216,16 @@ const IndicatorsList = () => {
         }
     }
 
+    const checkRow = (row) => {
+        // Filter out 'user_Id' from the columns and check if all other values are not null
+        return Object.keys(row).every((key) => {
+          if (key !== 'user_Id') {
+            return row[key] !== null && row[key] !== '';
+          }
+          return true; // Allow 'user_Id' to be null or not
+        });
+      };
+      
 
     //get data for admin
     const getIndicators= async() =>{
@@ -280,7 +304,10 @@ const IndicatorsList = () => {
                 ...item,
             }));
 
-
+            // Filter the data rows where none of the columns (except 'user_Id') are empty or null
+            setfilledRows(parDataWithDates.filter(checkRow))
+            
+            
             setIndicators(parDataWithDates);
             setFilteredIndicators(parDataWithDates)
             setRowsAffected(parDataWithDates.length)
@@ -355,6 +382,8 @@ const IndicatorsList = () => {
             </div>
         );
     };
+
+    
    
     
     const header = renderHeader();
@@ -734,6 +763,8 @@ const q4all_Ind_number_BodyTemplate = (rowData) => {
                 const response = await axios.patch(`${apiBaseUrl}/indicators/${rowData.id}`, {
                     [field]: newValue,
                 });
+
+                setfilledRows(indicators.filter(checkRow))
      
                 if (response.status === 200) {
                     console.log('Update successful');
@@ -886,9 +917,23 @@ const q4all_Ind_number_BodyTemplate = (rowData) => {
     };
     
 
+    // const calculateFilledPercentage = (rowData) => {
+    //     console.log("data",rowData)
+    //     const totalFields = Object.keys(rowData).length; // Total number of fields in the row
+    //     const filledFields = Object.values(rowData).filter(value => value !== null && value !== '').length; // Count of filled fields
+
+    //     return ((filledFields / totalFields) * 100).toFixed(2); // Calculate percentage
+    // };
     const calculateFilledPercentage = (rowData) => {
-        const totalFields = Object.keys(rowData).length; // Total number of fields in the row
-        const filledFields = Object.values(rowData).filter(value => value !== null && value !== '').length; // Count of filled fields
+        console.log("data", rowData);
+        
+        // Filter out 'user_Id' when calculating total fields and filled fields
+        const totalFields = Object.keys(rowData).filter(key => key !== 'user_Id').length; // Total number of fields excluding 'user_Id'
+        
+        const filledFields = Object.values(rowData)
+            .filter((value, index) => Object.keys(rowData)[index] !== 'user_Id' && value !== null && value !== '')
+            .length; // Count of filled fields excluding 'user_Id'
+    
         return ((filledFields / totalFields) * 100).toFixed(2); // Calculate percentage
     };
 
@@ -956,21 +1001,73 @@ const percentageTemplate = (rowData) => {
     });
     
 
-    
+    const totalCustomers = 5423;
+    const members = 1893;
+    const activeNow = 189;
 
     return(
-        <div className="card" >
-        <h1 className='title'>Indicators Table</h1>
+<div>
+<Card className="kpi-section-card">
+            <div className="kpi-section">
+                {/* Total Customers */}
+                <div className="kpi-item">
+                    <div className="kpi-icon" >
+                        {/* <i className="pi pi-users"></i> */}
+                        <img src={TotalIndicators} alt="Search" style={{ width: "64px", cursor: "pointer" }} />                   
+                    </div>
+                    <div className="kpi-details">
+                        <span className="kpi-label">Total Indicators</span>
+                        <h2 className="kpi-value">{indicators.length} </h2>
+                       
+                    </div>
+                </div>
+                {/* Separator Line */}
+                <div className="kpi-separator"></div>
+                {/* Members */}
+                <div className="kpi-item">
+                    <div className="kpi-icon">
+                        {/* <i className="pi pi-user"></i> */}
+                        <img src={indicatortwo} alt="Search" style={{ width: "32px", cursor: "pointer" }} />                   
+
+                    </div>
+                    <div className="kpi-details">
+                        <span className="kpi-label">Completed Indicators</span>
+                        <h2 className="kpi-value">{filledRows.length}</h2>
+                     
+                    </div>
+                </div>
+                {/* Separator Line */}
+                <div className="kpi-separator"></div>
+                {/* Active Now */}
+                <div className="kpi-item">
+                    <div className="kpi-icon" style={{backgroundColor:"pink"}}>
+                        {/* <i className="pi pi-desktop"></i> */}
+                        <img src={indicatorthree} alt="Search" style={{ width: "32px", cursor: "pointer" }} />                   
+
+                    </div>
+                    <div className="kpi-details">
+                        <span className="kpi-label">Not Completed</span>
+                        <h2 className="kpi-value">{indicators.length - filledRows.length }</h2>
+
+                    </div>
+                </div>
+            </div>
+        </Card>
+
+        <div className="datatable-container">
+
+        <div >
+        <h1 className='title' style={{font:'Poppins',fontSize:'22px',fontWeight:'600',lineHeight:'33px',color:'rgba(0, 0, 0, 1)'}}>Indicators Table</h1>
         <div className='d-flex align-items-center gap-4'>
         
         {user && user.role ==="admin" && (
-        <Link to={"/indicators/add"} ><Button label="New Indicator row" className='button is-primary mb-2 rounded' icon="pi pi-plus-circle"/></Link>
+        <Link to={"/indicators/add"} ><Button label="New Indicator row" className='p-button2 is-primary mb-2 rounded' icon="pi pi-plus-circle"/></Link>
         )}
 
         {user && user.role === "admin" && (
                 <Button
                     label="New Empty Row"
-                    className="button is-primary mb-2 rounded"
+                    className="p-button2 is-primary mb-2 rounded"
                     icon="pi pi-plus-circle"
                     style = {{marginLeft: "50px"}}
                     onClick={addEmptyRow} // Trigger the addEmptyRow function
@@ -981,7 +1078,7 @@ const percentageTemplate = (rowData) => {
       
             
             <Button
-                className='button is-primary mb-2 rounded' 
+                className='p-button3 is-primary mb-2 rounded' 
                 label="Delete Selected" 
                 icon="pi pi-trash" 
                 severity="danger"
@@ -1084,17 +1181,20 @@ const percentageTemplate = (rowData) => {
             <Column field="pilot_outcome" header={customHeader(headers.pilot_outcome.label, headers.pilot_outcome.description, "pilot_outcome")} filter filterField='pilot_outcome' filterElement={(option)=>(<FilterIndicators options={option} data={pilot_outcome} itemTemplate={ItemTemplate}/>)} showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={generalBodyTemplate(indicators,pilot_outcome_list,"pilot_outcome")} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
             <Column field="pilot_success_criteria"     header={customHeader(headers.pilot_success_criteria.label, headers.pilot_success_criteria.description, "pilot_success_criteria")} filter filterPlaceholder="Search by Success Criteria" style={{ minWidth: '12rem' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
             
-            <Column header="Ενέργειες" field="id" body={ActionsBodyTemplate} alignFrozen="right" frozen headerStyle={{ backgroundImage: 'linear-gradient(to right, #1400B9, #00B4D8)', color: '#ffffff' }}/>
+            <Column header="Ενέργειες" field="id" body={ActionsBodyTemplate} alignFrozen="right" frozen headerStyle={{ color: 'rgba(18, 0, 147, 1)' }}/>
 
  </DataTable>
 
     {/* Dialog for editing Paradotea */}
     
             <div>
-                <h3>{RowsAffected} rows were found based on search criteria</h3>
+                <h3 style={{fontFamily:'Poppins',fontSize:'14px',lineHeight:'21px',fontWeight:'500',color:'rgba(181, 183, 192, 1)'}}>Showing {RowsAffected} rows were found based on search criteria</h3>
             </div>
         
        
+    </div>
+    </div>
+
     </div>
     )
 }
